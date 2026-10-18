@@ -31,7 +31,7 @@
     this.imgs=new Array(this.n);this.ok=new Uint8Array(this.n);this.cur=0;this.started=false;this.shown=false;
     this.size();
   }
-  Film.prototype.src=function(i){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+SET+'/'+s+'.webp';};
+  Film.prototype.src=function(i){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+SET+'/'+s+'.webp?v=2';};
   Film.prototype.size=function(){var d=Math.min(window.devicePixelRatio||1,2),w=this.cv.clientWidth||innerWidth,h=this.cv.clientHeight||innerHeight;
     this.cv.width=Math.round(w*d);this.cv.height=Math.round(h*d);this.draw(this.cur,true);};
   Film.prototype.start=function(){if(this.started)return;this.started=true;var self=this,order=[],seen={};
