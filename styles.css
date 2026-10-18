@@ -218,3 +218,6 @@ html:not(.motion) .film--pour .caps{margin-top:0}
   .motion .film--pour .film__label{top:calc(60svh - 2.6rem)}
   .motion .cap--side{top:calc(60svh + .2rem)}
 }
+
+/* brighter phone hero: the kicker gets its own soft backing so it stays at 4.5:1 over the lit frames */
+@media (max-width:899px){.cap--hero .kicker{display:inline-block;background:rgba(20,15,11,.66);box-shadow:0 0 14px 6px rgba(20,15,11,.66);border-radius:4px}}
