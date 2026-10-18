@@ -76,8 +76,9 @@
   window.__pcbFilms=films;
   // keep the first screen light: hero phase 1 after load, the rest on first scroll or after idle
   var hero=films[0];
-  function heroAll(){hero.load(2);removeEventListener('scroll',heroAll);}
-  function afterLoad(){hero.load(1);addEventListener('scroll',heroAll,{passive:true});setTimeout(heroAll,3500);}
+    // first screen stays light: the poster is the first frame; hero frames start on first scroll/touch or 2.5 s after load
+  function heroAll(){hero.load(1);hero.load(2);removeEventListener('scroll',heroAll);removeEventListener('touchstart',heroAll);}
+  function afterLoad(){addEventListener('scroll',heroAll,{passive:true});addEventListener('touchstart',heroAll,{passive:true});setTimeout(heroAll,2500);}
   if(document.readyState==='complete')afterLoad();else addEventListener('load',afterLoad);
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){films.forEach(function(f){if(f.sec===e.target){f.load(1);f.load(2);}});io.unobserve(e.target);}});},{rootMargin:'250% 0px'});
   films.slice(1).forEach(function(f){io.observe(f.sec);});
@@ -90,7 +91,7 @@
   films.forEach(function(f){
     var caps=[].slice.call(f.sec.querySelectorAll('.cap')),isHero=f.name==='hero',o={f:0};
     var len=isHero?320:f.name==='pour'?280:240;
-    var tl=gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:f.sec,start:'top top',end:'+='+len+'%',pin:true,scrub:.5,anticipatePin:1,invalidateOnRefresh:true,
+    var tl=gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:f.sec,start:'top top',end:'+='+len+'%',pin:true,pinSpacer:f.sec.parentElement.classList.contains('pin-spacer')?f.sec.parentElement:undefined,scrub:.5,anticipatePin:1,invalidateOnRefresh:true,
       onUpdate:function(st){f.draw(o.f);if(isHero)ctaOut(st.progress>.2);}, onLeave:function(){if(isHero)ctaOut(true);}, onEnterBack:function(st){if(isHero)ctaOut(st.progress>.2);}}});
     tl.to(o,{f:f.n-1,duration:10,onUpdate:function(){f.draw(o.f);}},0);
     if(isHero){
@@ -113,11 +114,16 @@
     var frag=document.createElement('div');walk(tmp,frag);el.setAttribute('aria-label',el.textContent.replace(/\s+/g,' ').trim());el.innerHTML=frag.innerHTML;
     [].forEach.call(el.querySelectorAll('.w'),function(w){w.setAttribute('aria-hidden','true');});
     return el.querySelectorAll('.w>span');}
+  var heroWords=null;
   [].forEach.call(document.querySelectorAll('.lines'),function(el){var ws=split(el);
-    if(el.id==='hero-h'){gsap.from(ws,{yPercent:110,duration:.75,ease:'expo.out',stagger:.04,delay:.1});return;}
+    if(el.id==='hero-h'){heroWords=ws;return;}
     gsap.from(ws,{yPercent:110,duration:.8,ease:'expo.out',stagger:.04,scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none reverse'}});});
-  gsap.from('.cap--hero .kicker, .cap--hero .lede, .cap--hero .today__row, .cap--hero .btns',{y:18,autoAlpha:0,duration:.6,ease:'power3.out',stagger:.08,delay:.25});
+
   gsap.utils.toArray('.rv').forEach(function(el){gsap.from(el,{y:24,autoAlpha:0,duration:.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none reverse'}});});
+  var introd=false;function intro(){if(introd)return;introd=true;root.classList.add('fonts-in');
+    var tl=gsap.timeline();if(heroWords)tl.from(heroWords,{yPercent:110,duration:.7,ease:'expo.out',stagger:.04},0);
+    tl.from('.cap--hero .kicker, .cap--hero .lede, .cap--hero .today__row, .cap--hero .btns',{y:18,autoAlpha:0,duration:.55,ease:'power3.out',stagger:.07},.12);}
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(intro);setTimeout(intro,1200);}else intro();
   // steps slide in from alternating sides, then their rule sweeps across
   var steps=gsap.utils.toArray('.how .step');
   var stl=gsap.timeline({scrollTrigger:{trigger:'.how .steps',start:'top 80%',toggleActions:'play none none reverse'}});

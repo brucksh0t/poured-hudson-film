@@ -190,3 +190,6 @@ html:not(.motion) .film--pour .caps{margin-top:0}
   html:not(.motion) .film--hero .caps{margin-top:-1.25rem}
 }
 .motion .cap--left{background:rgba(14,10,7,.86);box-shadow:0 0 70px 50px rgba(14,10,7,.86)}
+.motion .cap--hero{clip-path:inset(-240px);transition:clip-path .7s var(--ease)}
+.motion:not(.fonts-in) .cap--hero{clip-path:inset(0 0 100% 0)}
+.motion:not(.fonts-in) .cap--hero>*{opacity:0}
