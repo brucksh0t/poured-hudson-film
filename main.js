@@ -38,7 +38,7 @@
   // d = 1920x1080, x = 2560x1440 for large or high-DPR desktop screens. Picked from canvas CSS size x DPR.
   // Each tier has a light preview ladder (mq 360x480 / dq 480x270, every 3rd frame) that lands first on slow links;
   // the sharp frame replaces it as soon as it arrives.
-  var FV='5',TIERS=[{k:'d',h:1080},{k:'x',h:1440}],STEP=3;
+  var FV='6',TIERS=[{k:'d',h:1080},{k:'x',h:1440}],STEP=3;
   function cap(){return Math.min(window.devicePixelRatio||1,2);}
 
   // ---------- Film engine: canvas WebP sequences ----------
@@ -56,7 +56,9 @@
   Film.prototype.pick=function(){if(mobile)return 'm';var c=this.cv,need=Math.max((c.clientWidth||innerWidth)*cap()/16*9,(c.clientHeight||innerHeight)*cap()),t=TIERS[0];
     for(var i=0;i<TIERS.length;i++){t=TIERS[i];if(t.h>=need*.9)break;}return t.k;};
   Film.prototype.isL=function(i){return i%STEP===0||i===this.n-1;};
-  Film.prototype.src=function(i,lq){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+(lq?(this.set==='m'?'mq':'dq'):this.set)+'/'+s+'.webp?v='+FV;};
+  // sharp frames are AVIF where supported (decoded from an inline 1-pixel test, no request), WebP otherwise; previews stay WebP
+  var EXT='webp',avifReady=new Promise(function(res){var t=new Image();t.onload=function(){res(t.width>0);};t.onerror=function(){res(false);};t.src='data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADrbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAETAAAAIgAAAChpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABqaXBycAAAAEtpcGNvAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAQcGl4aQAAAAADCAgIAAAADGF2MUOBAAwAAAAAE2NvbHJuY2x4AAEADQAGgAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAAKm1kYXQSAAoIGAA2iAhoNCAyFBlHh4Yhh5555oAAAJBAyRxhQoFI';}).then(function(a){if(a)EXT='avif';});
+  Film.prototype.src=function(i,lq){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+(lq?(this.set==='m'?'mq':'dq'):this.set)+'/'+s+(lq?'.webp':'.'+EXT)+'?v='+FV;};
   Film.prototype.size=function(){var d=cap(),w=this.cv.clientWidth||innerWidth,h=this.cv.clientHeight||innerHeight;
     this.cv.width=Math.round(w*d);this.cv.height=Math.round(h*d);this.ctx.imageSmoothingEnabled=true;this.ctx.imageSmoothingQuality='high';
     var t=this.pick();if(t!==this.set){var had=this.set;this.set=t;if(had){this.reset();this.seed();pump();}}
@@ -71,7 +73,8 @@
     return {name:this.name,set:this.set,n:this.n,cur:this.cur,drawn:this.drawn,drawnQ:this.drawnQ,loaded:this.ok.reduce(function(a,b){return a+b;},0),
       previews:this.lok.reduce(function(a,b){return a+b;},0),requested:this.req.reduce(function(a,b){return a+b;},0)+this.lreq.reduce(function(a,b){return a+b;},0),
       cw:this.cv.width,ch:this.cv.height,src:im?im.naturalWidth+'x'+im.naturalHeight:null};};
-  Film.prototype.draw=function(f,force){f=Math.max(0,Math.min(this.n-1,Math.round(f)));if(f===this.cur&&!force)return;if(f!==this.cur)this.dir=f>this.cur?1:-1;this.cur=f;
+  Film.prototype.draw=function(f,force){f=Math.max(0,Math.min(this.n-1,Math.round(f)));if(f===this.cur&&!force)return;
+    var now=Date.now();if(f!==this.cur){var dt=(now-(this.t0||now))/1000;if(dt>0)this.v=(this.v||0)*.5+Math.min(Math.abs(f-this.cur)/dt,240)*.5;this.t0=now;this.dir=f>this.cur?1:-1;}this.cur=f;
     // nearest sharp frame vs nearest preview; a preview wins only when it is 2+ frames closer
     var bf=-1,bl=-1,d;for(d=0;d<this.n&&(bf<0||bl<0);d++){
       if(bf<0){if(f-d>=0&&this.ok[f-d])bf=f-d;else if(f+d<this.n&&this.ok[f+d])bf=f+d;}
@@ -83,10 +86,14 @@
     if(!this.shown){this.shown=true;gsap.to(this.poster,{autoAlpha:0,duration:.4});}
     pump();};
   // best next request for this film: previews first (closest to the reader), then sharp frames ahead of the scroll direction
-  Film.prototype.next=function(){var n=this.n,c=this.cur,dir=this.dir,best=-1,bd=1e9,lq=false,i,d;
-    for(i=0;i<n;i++){if(this.isL(i)&&!this.lreq[i]&&!this.ok[i]){d=(i-c)*dir;d=d>=0?d:-d*2;if(d<bd){bd=d;best=i;lq=true;}}}
+  // lead: how far the reader will have scrubbed by the time a request lands (~0.3 s at the current scrub speed), so fast
+  // scrubbing fetches where the frame index is going, not frames it is about to pass
+  function score(t,lead){return t<0?1000-t:(t<lead?(lead-t)*1.5:t-lead);}
+  Film.prototype.next=function(){var n=this.n,c=this.cur,dir=this.dir,best=-1,bd=1e9,lq=false,i,d,
+      lead=Date.now()-(this.t0||0)>400?0:Math.min((this.v||0)*.3,15);
+    for(i=0;i<n;i++){if(this.isL(i)&&!this.lreq[i]&&!this.ok[i]){d=score((i-c)*dir,lead);if(d<bd){bd=d;best=i;lq=true;}}}
     if(best>=0)return {i:best,lq:true,p:bd};
-    for(i=0;i<n;i++){if(!this.req[i]){d=(i-c)*dir;d=d>=0?d:-d*2+1;if(d<bd){bd=d;best=i;}}}
+    for(i=0;i<n;i++){if(!this.req[i]){d=score((i-c)*dir,lead);if(d<bd){bd=d;best=i;}}}
     return best>=0?{i:best,lq:false,p:1000+bd}:null;};
   var films=[].slice.call(document.querySelectorAll('[data-film]')).map(function(s){return new Film(s);});
   window.__pcbFilms=films;
@@ -107,7 +114,7 @@
     pumping=false;}
   films.forEach(function(f){f.seed();});
   // no frame requests until the reader scrolls
-  function go(){if(started)return;started=true;['scroll','wheel','touchmove','keydown'].forEach(function(e){removeEventListener(e,go);});pump();}
+  function go(){if(started)return;started=true;['scroll','wheel','touchmove','keydown'].forEach(function(e){removeEventListener(e,go);});avifReady.then(pump);}
   ['scroll','wheel','touchmove','keydown'].forEach(function(e){addEventListener(e,go,{passive:true});});
   var sq=0;addEventListener('scroll',function(){if(sq)return;sq=requestAnimationFrame(function(){sq=0;pump();});},{passive:true});
   var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){films.forEach(function(f){f.size();});},120);});
@@ -119,12 +126,15 @@
 
   films.forEach(function(f){
     var caps=[].slice.call(f.sec.querySelectorAll('.cap')),isHero=f.name==='hero',o={f:0};
-    var len=isHero?320:f.name==='pour'?280:240;
+    var len=isHero?520:f.name==='pour'?280:240;
     var tl=gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:f.sec,start:'top top',end:'+='+len+'%',pin:true,pinSpacer:f.sec.parentElement.classList.contains('pin-spacer')?f.sec.parentElement:undefined,scrub:.5,anticipatePin:1,invalidateOnRefresh:true,
-      onUpdate:function(st){f.draw(o.f);if(isHero)ctaOut(st.progress>.2);}, onLeave:function(){if(isHero)ctaOut(true);}, onEnterBack:function(st){if(isHero)ctaOut(st.progress>.2);}}});
-    tl.to(o,{f:f.n-1,duration:10,onUpdate:function(){f.draw(o.f);}},0);
+      onUpdate:function(st){f.draw(o.f);if(isHero)ctaOut(st.progress>.12);}, onLeave:function(){if(isHero)ctaOut(true);}, onEnterBack:function(st){if(isHero)ctaOut(st.progress>.12);}}});
+    // hero: the first steps through the door are slower (8 frames over the first fifth of the pin), which also gives the
+    // preview ladder a head start after the first scroll; the rest of the walk-in and the side pan run at an even pace
+    if(isHero){tl.to(o,{f:8,duration:2,onUpdate:function(){f.draw(o.f);}},0);tl.to(o,{f:f.n-1,duration:8,onUpdate:function(){f.draw(o.f);}},2);}
+    else tl.to(o,{f:f.n-1,duration:10,onUpdate:function(){f.draw(o.f);}},0);
     if(isHero){
-      capOut(tl,caps[0],2.2);capIn(tl,caps[1],6.2);
+      capOut(tl,caps[0],1.35);capIn(tl,caps[1],3.8);// frames 1–68 walk in to the bar, 69–111 side pan to the real shelf
     }else if(f.name==='pour'){
       var st=[].slice.call(f.sec.querySelectorAll('.steps--film .step'));
       if(mobile){tl.set(caps[0],{autoAlpha:1},0);gsap.set(caps[0],{autoAlpha:1});tl.set(st[1],{autoAlpha:0},0);capOut(tl,st[0],5.6);capIn(tl,st[1],6.2);}
