@@ -11,8 +11,11 @@
 <script>(function(d){var c=d.documentElement;c.className='js';if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)c.className+=' motion';})(document);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Karla:wght@400;600&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="img/poster-hero.jpg">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Karla:wght@400;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Karla:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Karla:wght@400;600&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" as="image" type="image/webp" media="(max-width:899px)" imagesrcset="img/hero-m-540.webp 540w, img/hero-m-810.webp 810w" imagesizes="100vw" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" media="(min-width:900px)" imagesrcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" imagesizes="100vw" fetchpriority="high">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -21,35 +24,28 @@
 <header class="nav" id="top">
   <a class="brand" href="#top" aria-label="Poured Candle Bar, back to top">Poured</a>
   <nav class="nav__links" aria-label="Main"><a href="#today">Today</a><a href="#pour">The pour</a><a href="#prices">Prices</a><a href="#about">About</a><a href="#visit">Visit</a></nav>
-  <a class="btn btn--ghost btn--hdr" href="https://www.pouredcandlebar.com/products/pcb-experience" target="_blank" rel="noopener">BOOK A POUR</a>
+  <a class="btn btn--primary btn--hdr" href="https://www.pouredcandlebar.com/products/pcb-experience" target="_blank" rel="noopener">BOOK A POUR</a>
 </header>
 
 <main>
 <!-- HERO: scroll-scrubbed film (walk in → wall of scents) -->
-<section class="film film--hero" id="today" data-film="hero" data-frames="74" aria-labelledby="hero-h">
+<section class="film film--hero" id="today" data-film="hero" data-frames="68" aria-labelledby="hero-h">
   <div class="film__stage">
-    <img class="film__poster" src="img/poster-hero.jpg" alt="The long shop interior: a bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1280" height="720" fetchpriority="high">
+    <picture><source type="image/webp" media="(max-width:899px)" srcset="img/hero-m-540.webp 540w, img/hero-m-810.webp 810w" sizes="100vw"><source type="image/webp" srcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/hero-1280.jpg" alt="The long shop interior: a bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1280" height="720" fetchpriority="high"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__veil" aria-hidden="true"></div>
-    <div class="film__progress" aria-hidden="true"><span></span></div>
+    <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   </div>
   <div class="caps">
     <div class="cap cap--hero">
       <p class="kicker">Warren Street · Hudson, NY (address: call to confirm)</p>
       <h1 id="hero-h" class="lines">Blend your own scent. <em>Sip while it sets.</em></h1>
       <p class="lede">Make a one-of-a-kind candle, reed diffuser, or perfume from over 40 fragrances, sitting at a licensed wine bar.</p>
-      <div class="btns"><a class="btn btn--primary btn--lg pri" href="https://www.pouredcandlebar.com/products/pcb-experience" target="_blank" rel="noopener">BOOK A POUR</a><a class="btn btn--ghost btn--lg" href="tel:+15183033878">CALL</a></div>
+      <p class="today__row" data-status><span class="dot dot--neutral" aria-hidden="true"></span><span><b>Today</b> <span data-text>Posted hours: Sun 11–6 · Mon 12–6 · Thu 12–7 · Fri 12–8 · Sat 11–8 · Closed Tue–Wed (listed as summer hours). Call to confirm: <a href="tel:+15183033878">(518) 303-3878</a></span></span></p>
+      <div class="btns"><a class="btn btn--primary btn--lg" href="https://www.pouredcandlebar.com/products/pcb-experience" target="_blank" rel="noopener">BOOK A POUR</a><a class="btn btn--ghost btn--lg" href="tel:+15183033878">CALL</a></div>
     </div>
-    <div class="cap cap--right">
-      <ul class="today">
-        <li class="today__row" data-status><span class="dot dot--neutral" aria-hidden="true"></span><span><b>Today</b> <span data-text>Posted hours: Sun 11–6 · Mon 12–6 · Thu 12–7 · Fri 12–8 · Sat 11–8 · Closed Tue–Wed (listed as summer hours). Call to confirm: <a href="tel:+15183033878">(518) 303-3878</a></span></span></li>
-        <li class="today__row"><span class="dot dot--plain" aria-hidden="true"></span><span><b>Seats</b> Limited; weekends book up. Walk-ins welcome, first come, first served.</span></li>
-      </ul>
-    </div>
-    <div class="cap cap--left">
-      <p class="kicker">40+ fragrances</p>
-      <p class="cap__big">Staff help you build a scent combination from 40+ fragrances, made with perfume-grade fragrance and essential oils.</p>
-      <p class="cap__small">Wine, beer, and cider are available at the bar. No outside food or drink.</p>
+    <div class="cap cap--left cap--seats">
+      <p class="today__row"><span class="dot dot--plain" aria-hidden="true"></span><span><b>Seats</b> Limited; weekends book up. Walk-ins welcome, first come, first served.</span></p>
     </div>
   </div>
 </section>
@@ -64,23 +60,27 @@
     <ol class="steps">
       <li class="step" data-from="left"><span class="step__n">1 · BOOK</span><p>Reserve a seat for everyone in your party; each person makes their own fragrance (no shared experiences). Groups of 5 or more should call before booking online.</p></li>
       <li class="step" data-from="right"><span class="step__n">2 · BLEND</span><p>Staff help you build a scent combination from 40+ fragrances, made with perfume-grade fragrance and essential oils. Wine, beer, and cider are available at the bar. No outside food or drink.</p></li>
-      <li class="step" data-from="left"><span class="step__n">3 · POUR</span><p>A booking includes an 8 oz candle in amber or black glass. At the bar you can upgrade to larger tinted glass, ceramic, iron, marble, or stone vessels, or to a cologne, perfume, or reed diffuser. Upgrade prices vary: ask at the bar.</p></li>
-      <li class="step" data-from="right"><span class="step__n">4 · PICK UP</span><p>Candles cure for about 120 minutes. If you start within 3 hours of closing, pick up the next day or pay to have it shipped.</p></li>
-    </ol>
+</ol>
     <figure class="barshot"><div class="feather par" data-speed="-8"><picture><source type="image/webp" srcset="img/bar-600.webp 600w, img/bar-1200.webp 1200w" sizes="(min-width:900px) 380px, 90vw"><img src="img/bar.jpg" alt="The blending bar: a scent-notes clipboard and pencil, a glass of red wine, and a small beaker on a black tray, with wine bottles and shelves of fragrance bottles behind." width="1200" height="1500" loading="lazy" decoding="async"></picture></div><figcaption>The blending bar. Photo: pouredcandlebar.com</figcaption></figure>
   </div>
 </section>
 
 <!-- IMPACT: the pour -->
-<section class="film film--impact" data-film="pour" data-frames="97" aria-label="The pour">
+<section class="film film--impact film--pour" data-film="pour" data-frames="105" aria-labelledby="pour-h">
   <div class="film__stage">
-    <img class="film__poster" src="img/end-pour.jpg?v=2" alt="" width="1280" height="720" loading="lazy">
+    <picture><source type="image/webp" srcset="img/pour-end-1280.webp 1280w, img/pour-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/pour-end-1280.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__veil" aria-hidden="true"></div>
+    <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   </div>
   <div class="caps">
-    <div class="cap cap--center"><p class="kicker">3 · POUR</p><p class="cap__big">A booking includes an 8 oz candle in amber or black glass.</p></div>
-    <div class="cap cap--center"><p class="kicker">4 · PICK UP</p><p class="cap__big">Candles cure for about 120 minutes.</p></div>
+    <div class="cap cap--side">
+      <h2 id="pour-h" class="sr-only">The pour and pick-up</h2>
+      <ol class="steps steps--film" start="3">
+      <li class="step"><span class="step__n">3 · POUR</span><p>A booking includes an 8 oz candle in amber or black glass. At the bar you can upgrade to larger tinted glass, ceramic, iron, marble, or stone vessels, or to a cologne, perfume, or reed diffuser. Upgrade prices vary: ask at the bar.</p></li>
+      <li class="step"><span class="step__n">4 · PICK UP</span><p>Candles cure for about 120 minutes. If you start within 3 hours of closing, pick up the next day or pay to have it shipped.</p></li>
+          </ol>
+    </div>
   </div>
 </section>
 
@@ -102,21 +102,20 @@
   </div>
   <div class="wrap book" id="book">
     <h2 class="disp lines">Book a seat</h2>
-    <p class="rv">Reserve a seat for everyone in your party; each person makes their own fragrance (no shared experiences). Groups of 5 or more should call before booking online.</p>
-    <p class="rv"><b>Seats</b> Limited; weekends book up. Walk-ins welcome, first come, first served.</p>
-    <div class="btns rv"><a class="btn btn--primary btn--lg pri" href="https://www.pouredcandlebar.com/products/pcb-experience" target="_blank" rel="noopener">BOOK A POUR</a><a class="btn btn--ghost btn--lg" href="tel:+15183033878">CALL</a></div>
+    <div class="btns rv"><a class="btn btn--primary btn--lg" href="https://www.pouredcandlebar.com/products/pcb-experience" target="_blank" rel="noopener">BOOK A POUR</a><a class="btn btn--ghost btn--lg" href="tel:+15183033878">CALL</a></div>
   </div>
 </section>
 
 <!-- IMPACT: the wick -->
 <section class="film film--impact film--wick" data-film="wick" data-frames="49" aria-label="Lighting the wick">
   <div class="film__stage">
-    <img class="film__poster" src="img/end-wick.jpg" alt="" width="1280" height="720" loading="lazy">
+    <picture><source type="image/webp" srcset="img/wick-end-1280.webp 1280w, img/wick-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/end-wick.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__veil" aria-hidden="true"></div>
+    <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   </div>
   <div class="caps">
-    <div class="cap cap--center"><p class="cap__big cap__quote">“All of our scents + candles are handcrafted in Hudson, New York.”</p></div>
+    <div class="cap cap--center cap--scrim"><p class="cap__big cap__quote">“All of our scents + candles are handcrafted in Hudson, New York.”</p></div>
   </div>
 </section>
 
@@ -126,7 +125,6 @@
     <div class="ab__media"><div class="feather par" data-speed="-10"><picture><source type="image/webp" srcset="img/shop-800.webp 800w, img/shop-1500.webp 1500w" sizes="(min-width:900px) 560px, 92vw"><img src="img/shop.jpg" alt="The long shop interior: a white bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1500" height="1200" loading="lazy" decoding="async"></picture></div></div>
     <div>
       <h2 id="ab-h" class="disp lines">Fragrance is decor</h2>
-      <blockquote class="rv"><p>“All of our scents + candles are handcrafted in Hudson, New York.”</p></blockquote>
       <p class="rv">Poured is run by Dennis Green and Ricky Tiscareno, partners in business and life (plus Nashville, their rescue dog). Dennis came from Toronto and the luxury knitwear trade; Ricky from San Jose, by way of professional dance and tech recruiting.</p>
       <div class="owners rv"><picture><source type="image/webp" srcset="img/owners-344.webp 344w" sizes="(max-width:480px) 112px, 140px"><img src="img/owners.jpg" alt="Dennis Green and Ricky Tiscareno seated on a wooden bench outdoors with their small dog." width="344" height="480" loading="lazy" decoding="async"></picture><p class="note">Quoted and summarized from pouredcandlebar.com home and About pages, checked Oct 12, 2026.</p></div>
     </div>
@@ -172,6 +170,6 @@
 </div>
 <script src="js/gsap.min.js" defer></script>
 <script src="js/ScrollTrigger.min.js" defer></script>
-<script src="main.js?v=3" defer></script>
+<script src="main.js?v=4" defer></script>
 </body>
 </html>

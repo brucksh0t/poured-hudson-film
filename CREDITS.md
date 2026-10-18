@@ -44,15 +44,15 @@ Two families: Cormorant Garamond (display, headings, ALL-CAPS buttons/labels) an
 - Upgrade prices: not posted.
 
 ## Motion (AI-generated)
-The scroll-scrubbed footage on this page is AI-generated video, made from the shop's own photos listed above (image-to-video, with first/last-frame chaining). It is not footage filmed at the shop. The hero ends on the shop's real bar photo. The wax stream and the single-wick close-up are invented by the model; they show the process, not a specific moment at the shop.
+The scroll-scrubbed footage on this page is AI-generated video, made from the shop's own photos listed above (image-to-video, with first/last-frame chaining). It is not footage filmed at the shop. Each film carries an on-screen label: "Illustrative · AI-generated from the shop's photos". Booking facts sit beside the footage (desktop) or below it (phones), on a dark scrim, never over the product.
 
 | Sequence | Frames | Made from |
 |---|---|---|
-| frames/hero (walk in → the bar) | 74 (clip 1, every 2nd frame) | Clip 1 starts on img/shop.jpg and ends on img/bar.jpg. A stretch where the model invented a room (old frames 044–060) is cut, with a short dissolve across the cut. The last frame is the real bar photo itself (PCB_4524, full width, no zoom), not a generated frame. The shelf-tilt clip 2 is no longer used. |
-| frames/pour (creamy wax pours into a vessel) | 97 (8 s) | Starts on a crop of img/tray.jpg (the vessels and marble dish, with the labelled bottle left out) |
-| frames/wick (a wick is lit, the flame blooms) | 49 (8 s clip, every 2nd frame, old frames 029–076 cut) | Ends on img/bowl.jpg. The cut removes ghosted flames; the join fades briefly through dark. |
+| frames/hero (walk in → the bar) | 68 (clip 1, every 2nd frame) | Starts on img/shop.jpg, ends on the real bar photo (PCB_4524, full width, no zoom). The stretch where the model invented a room (old frames 038–060) is cut; the cut is a deliberate short dip through dark (no cross-dissolve). |
+| frames/pour (melted wax poured into an amber glass jar) | 105 | Frame 1 is a crop of img/tray.jpg (black tray, marble coaster, marble vessel with wick tabs; the labelled bottle and the clipboard are outside the crop). It dips through dark into an 8 s generated clip: a steel pouring pitcher pours a thin, clear-to-amber stream of liquid wax into an empty amber glass jar with a standing wick until it is full, then lifts away. The jar, pitcher and room are invented by the model; they illustrate the step, not the shop's actual vessels. |
+| frames/wick (a wick is lit, the flame blooms) | 49 (8 s clip, every 2nd frame, old frames 029–076 cut) | Ends on img/bowl.jpg. The cut removes ghosted flames; the join is a short dip through dark. |
 
-Frames are WebP (quality 85), cut after a 2× upscale of the 720p clips with Topaz Video AI (Proteus): `x/` 2560×1440 for large or high-DPR desktop screens, `d/` 1920×1080, and `m/` 1080×1440 center crops for phones (the same framing as the old 540×720 crops). The page picks a tier from the canvas CSS size × devicePixelRatio (capped at 2). Posters and stills are first or last frames from the same clips. When reduced motion is on, or JS is off, the page shows the stills and all of the content without scroll-scrubbing.
+Frames are WebP, cut after a 2× upscale of the 720p clips: `x/` 2560×1440 for large or high-DPR desktop screens, `d/` 1920×1080, and `m/` 1080×1440 centre crops for phones (WebP q78; desktop tiers q80–85). Hero and wick were upscaled with a commercial video upscaler; the new pour clip with Real-ESRGAN x2plus, then Lanczos to the tier sizes. The page picks a tier from the canvas CSS size × devicePixelRatio (capped at 2). On phones the hero loads its first 8 frames plus every 8th after page load and the rest on first scroll; the pour and wick load when they come near. Posters and stills are first or last frames from the same clips. When reduced motion is on, or JS is off, the page shows the stills and all of the content without scroll-scrubbing.
 
 ## Code
 GSAP 3.12.5 + ScrollTrigger, served locally from js/ (standard GSAP license).

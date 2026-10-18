@@ -19,73 +19,94 @@
   window.__pcb={compute:compute};
 
   var root=document.documentElement;
-  if(!/\bmotion\b/.test(root.className))return;
-  if(!window.gsap||!window.ScrollTrigger){root.classList.remove('motion');return;}
+  // chrome height (flag + sticky nav) so the first screen can be laid out above the fold
+  function chrome(){var f=document.querySelector('.flag'),nv=document.querySelector('.nav'),fh=f?f.offsetHeight:0,nh=nv?nv.offsetHeight:0;
+    root.style.setProperty('--chrome',(fh+nh)+'px');root.style.setProperty('--flag',fh+'px');root.style.setProperty('--navh',nh+'px');}
+  chrome();addEventListener('resize',chrome);
+  // One filled BOOK A POUR per screen: header/bar CTA shows only once the hero CTA has left the screen.
+  function ctaOut(v){root.classList.toggle('cta-out',!!v);}
+  var motion=/\bmotion\b/.test(root.className)&&window.gsap&&window.ScrollTrigger;
+  if(!motion){
+    root.classList.remove('motion');
+    var hb=document.querySelector('.cap--hero .btns');
+    if(hb&&'IntersectionObserver' in window)new IntersectionObserver(function(es){ctaOut(!es[0].isIntersecting);}).observe(hb);else ctaOut(true);
+    return;
+  }
   gsap.registerPlugin(ScrollTrigger);
   var mobile=window.matchMedia('(max-width:899px)').matches;
-  // Tiers (upscaled 2x from 720p with Topaz Proteus, WebP q85): m = 1080x1440 portrait crop for phones,
-  // d = 1920x1080, x = 2560x1440 for large or high-DPR desktop screens. Picked from CSS size x DPR.
-  var FV='3',TIERS=[{k:'d',h:1080},{k:'x',h:1440}];
+  // Tiers (2x upscales of the 720p clips): m = 1080x1440 portrait crop for phones,
+  // d = 1920x1080, x = 2560x1440 for large or high-DPR desktop screens. Picked from canvas CSS size x DPR.
+  var FV='4',TIERS=[{k:'d',h:1080},{k:'x',h:1440}];
   function cap(){return Math.min(window.devicePixelRatio||1,2);}
 
   // ---------- Film engine: canvas WebP sequences, progressive load ----------
+  // Frame index always comes from the pinned timeline's progress (one source of truth), so reverse scrolling
+  // restores the same frame. Missing frames fall back to the nearest loaded one; if none load, the poster stays.
   function Film(sec){
-    var self=this;this.sec=sec;this.n=+sec.dataset.frames;this.name=sec.dataset.film;
+    this.sec=sec;this.n=+sec.dataset.frames;this.name=sec.dataset.film;
     this.cv=sec.querySelector('canvas');this.ctx=this.cv.getContext('2d');this.poster=sec.querySelector('.film__poster');
-    this.cur=0;this.started=false;this.shown=false;this.set=null;this.gen=0;this.reset();
-    this.size();
+    this.cur=0;this.phase=0;this.shown=false;this.set=null;this.gen=0;this.reset();this.size();
   }
-  Film.prototype.reset=function(){this.gen++;this.imgs=new Array(this.n);this.ok=new Uint8Array(this.n);this.drawn=-1;};
+  Film.prototype.reset=function(){this.gen++;this.imgs=new Array(this.n);this.ok=new Uint8Array(this.n);this.req=new Uint8Array(this.n);this.drawn=-1;};
   Film.prototype.pick=function(){if(mobile)return 'm';var c=this.cv,need=Math.max((c.clientWidth||innerWidth)*cap()/16*9,(c.clientHeight||innerHeight)*cap()),t=TIERS[0];
     for(var i=0;i<TIERS.length;i++){t=TIERS[i];if(t.h>=need*.9)break;}return t.k;};
   Film.prototype.src=function(i){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+this.set+'/'+s+'.webp?v='+FV;};
   Film.prototype.size=function(){var d=cap(),w=this.cv.clientWidth||innerWidth,h=this.cv.clientHeight||innerHeight;
     this.cv.width=Math.round(w*d);this.cv.height=Math.round(h*d);this.ctx.imageSmoothingEnabled=true;this.ctx.imageSmoothingQuality='high';
-    var t=this.pick();if(t!==this.set){var had=this.set;this.set=t;if(had){this.reset();if(this.started){this.started=false;this.start();}}}
+    var t=this.pick();if(t!==this.set){var had=this.set,ph=this.phase;this.set=t;if(had){this.reset();this.phase=0;if(ph)this.load(ph);}}
     this.draw(this.cur,true);};
-  Film.prototype.start=function(){if(this.started)return;this.started=true;var self=this,order=[],seen={},g=this.gen;
-    [16,8,4,2,1].forEach(function(s){for(var i=0;i<self.n;i+=s)if(!seen[i]){seen[i]=1;order.push(i);}});
-    if(!seen[self.n-1])order.splice(1,0,self.n-1);
+  // phase 1: first 8 frames + every 8th + last (enough to scrub coarsely); phase 2: everything else
+  Film.prototype.load=function(ph){if(ph<=this.phase)return;this.phase=ph;var self=this,order=[],g=this.gen,n=this.n;
+    function add(i){if(i>=0&&i<n&&!self.req[i]){self.req[i]=1;order.push(i);}}
+    for(var i=0;i<Math.min(8,n);i++)add(i);for(i=0;i<n;i+=8)add(i);add(n-1);
+    if(ph>1)[4,2,1].forEach(function(s){for(var i=0;i<n;i+=s)add(i);});
     var k=0,live=0,MAX=6;
     function next(){if(g!==self.gen)return;while(live<MAX&&k<order.length){(function(i){live++;var im=new Image();im.decoding='async';
       im.onload=function(){if(g!==self.gen)return;self.imgs[i]=im;self.ok[i]=1;live--;if(Math.abs(i-self.cur)<=16)self.draw(self.cur,true);next();};
-      im.onerror=function(){live--;next();};im.src=self.src(i);})(order[k++]);}}
+      im.onerror=function(){live--;self.req[i]=0;next();};im.src=self.src(i);})(order[k++]);}}
     next();};
   Film.prototype.state=function(){var im=this.imgs[this.drawn];return {name:this.name,set:this.set,n:this.n,cur:this.cur,drawn:this.drawn,loaded:this.ok.reduce(function(a,b){return a+b;},0),cw:this.cv.width,ch:this.cv.height,src:im?im.naturalWidth+'x'+im.naturalHeight:null};};
   Film.prototype.draw=function(f,force){f=Math.max(0,Math.min(this.n-1,Math.round(f)));if(f===this.cur&&!force&&this.drawn===f)return;this.cur=f;
     var i=f,j=f,im=null,at=-1;while(i>=0||j<this.n){if(i>=0&&this.ok[i]){im=this.imgs[i];at=i;break;}if(j<this.n&&this.ok[j]){im=this.imgs[j];at=j;break;}i--;j++;}
     if(!im)return;var c=this.cv,cw=c.width,ch=c.height,s=Math.max(cw/im.naturalWidth,ch/im.naturalHeight),w=im.naturalWidth*s,h=im.naturalHeight*s;
     this.ctx.drawImage(im,(cw-w)/2,(ch-h)/2,w,h);this.drawn=at;
-    if(!this.shown){this.shown=true;gsap.to(this.poster,{autoAlpha:0,duration:.6});}};
+    if(!this.shown){this.shown=true;gsap.to(this.poster,{autoAlpha:0,duration:.4});}};
 
   var films=[].slice.call(document.querySelectorAll('[data-film]')).map(function(s){return new Film(s);});
   window.__pcbFilms=films;
-  films[0].start();
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){films.forEach(function(f){if(f.sec===e.target)f.start();});io.unobserve(e.target);}});},{rootMargin:'250% 0px'});
+  // keep the first screen light: hero phase 1 after load, the rest on first scroll or after idle
+  var hero=films[0];
+  function heroAll(){hero.load(2);removeEventListener('scroll',heroAll);}
+  function afterLoad(){hero.load(1);addEventListener('scroll',heroAll,{passive:true});setTimeout(heroAll,3500);}
+  if(document.readyState==='complete')afterLoad();else addEventListener('load',afterLoad);
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){films.forEach(function(f){if(f.sec===e.target){f.load(1);f.load(2);}});io.unobserve(e.target);}});},{rootMargin:'250% 0px'});
   films.slice(1).forEach(function(f){io.observe(f.sec);});
   var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){films.forEach(function(f){f.size();});},120);});
 
-  function capIn(tl,el,at){tl.fromTo(el,{autoAlpha:0,y:40,filter:'blur(10px)'},{autoAlpha:1,y:0,filter:'blur(0px)',duration:.8,ease:'power2.out'},at);}
-  function capOut(tl,el,at){tl.to(el,{autoAlpha:0,y:-40,filter:'blur(10px)',duration:.7,ease:'power2.in'},at);}
+  // crisp caption beats: opacity + short rise, no blur; fully opaque at rest
+  function capIn(tl,el,at){tl.fromTo(el,{autoAlpha:0,y:28},{autoAlpha:1,y:0,duration:.6,ease:'power3.out'},at);}
+  function capOut(tl,el,at){tl.to(el,{autoAlpha:0,y:-20,duration:.5,ease:'power2.in'},at);}
 
   films.forEach(function(f){
-    var caps=[].slice.call(f.sec.querySelectorAll('.cap')),hero=f.name==='hero',o={f:0};
-    var tl=gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:f.sec,start:'top top',end:'+='+(hero?420:240)+'%',pin:true,scrub:.5,anticipatePin:1,
-      onUpdate:function(){f.draw(o.f);}}});
+    var caps=[].slice.call(f.sec.querySelectorAll('.cap')),isHero=f.name==='hero',o={f:0};
+    var len=isHero?320:f.name==='pour'?280:240;
+    var tl=gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:f.sec,start:'top top',end:'+='+len+'%',pin:true,scrub:.5,anticipatePin:1,invalidateOnRefresh:true,
+      onUpdate:function(st){f.draw(o.f);if(isHero)ctaOut(st.progress>.2);}, onLeave:function(){if(isHero)ctaOut(true);}, onEnterBack:function(st){if(isHero)ctaOut(st.progress>.2);}}});
     tl.to(o,{f:f.n-1,duration:10,onUpdate:function(){f.draw(o.f);}},0);
-    var bar=f.sec.querySelector('.film__progress span');if(bar)tl.to(bar,{scaleX:1,duration:10},0);
-    if(hero){
-      capOut(tl,caps[0],2.2);capIn(tl,caps[1],3.3);capOut(tl,caps[1],5.6);capIn(tl,caps[2],6.6);
-      // no stage zoom: the hero ends on the real bar photo at its own scale
-    }else if(caps.length===2){
-      capIn(tl,caps[0],1);capOut(tl,caps[0],4.2);capIn(tl,caps[1],6);capOut(tl,caps[1],9.2);
+    if(isHero){
+      capOut(tl,caps[0],2.2);capIn(tl,caps[1],6.2);
+    }else if(f.name==='pour'){
+      var st=[].slice.call(f.sec.querySelectorAll('.steps--film .step'));
+      capIn(tl,caps[0],2.6);
+      if(mobile){tl.set(st[1],{autoAlpha:0},0);capOut(tl,st[0],5.6);capIn(tl,st[1],6.2);}
+      else{tl.fromTo(st[1],{autoAlpha:0,y:24},{autoAlpha:1,y:0,duration:.6,ease:'power3.out'},4.6);}
     }else{
       capIn(tl,caps[0],5.5);
     }
   });
 
-  // ---------- Section choreography ----------
-  function split(el){var html=el.innerHTML;var tmp=document.createElement('div');tmp.innerHTML=html;
+  // ---------- Section choreography (crisp: transform + opacity only, no blur) ----------
+  function split(el){var tmp=document.createElement('div');tmp.innerHTML=el.innerHTML;
     function walk(node,out){[].forEach.call(node.childNodes,function(c){if(c.nodeType===3){c.textContent.split(/(\s+)/).forEach(function(p){if(!p)return;if(/^\s+$/.test(p)){out.appendChild(document.createTextNode(' '));return;}
         var w=document.createElement('span');w.className='w';var s=document.createElement('span');s.textContent=p;w.appendChild(s);out.appendChild(w);});}
       else{var cl=c.cloneNode(false);out.appendChild(cl);walk(c,cl);}});}
@@ -93,25 +114,27 @@
     [].forEach.call(el.querySelectorAll('.w'),function(w){w.setAttribute('aria-hidden','true');});
     return el.querySelectorAll('.w>span');}
   [].forEach.call(document.querySelectorAll('.lines'),function(el){var ws=split(el);
-    if(el.id==='hero-h'){gsap.from(ws,{yPercent:115,rotate:4,duration:1.1,ease:'expo.out',stagger:.06,delay:.15});return;}
-    gsap.from(ws,{yPercent:115,rotate:3,duration:1,ease:'expo.out',stagger:.05,scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none reverse'}});});
-  gsap.from('.cap--hero .kicker, .cap--hero .lede, .cap--hero .btns',{y:24,autoAlpha:0,duration:1,ease:'power3.out',stagger:.12,delay:.5});
-  gsap.utils.toArray('.rv').forEach(function(el){gsap.from(el,{y:34,autoAlpha:0,filter:'blur(6px)',duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none reverse'}});});
-  // steps build themselves: cards fly in from alternating sides, then their rule draws
-  var steps=gsap.utils.toArray('.step');
-  var stl=gsap.timeline({scrollTrigger:{trigger:'.steps',start:'top 78%',toggleActions:'play none none reverse'}});
+    if(el.id==='hero-h'){gsap.from(ws,{yPercent:110,duration:.75,ease:'expo.out',stagger:.04,delay:.1});return;}
+    gsap.from(ws,{yPercent:110,duration:.8,ease:'expo.out',stagger:.04,scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none reverse'}});});
+  gsap.from('.cap--hero .kicker, .cap--hero .lede, .cap--hero .today__row, .cap--hero .btns',{y:18,autoAlpha:0,duration:.6,ease:'power3.out',stagger:.08,delay:.25});
+  gsap.utils.toArray('.rv').forEach(function(el){gsap.from(el,{y:24,autoAlpha:0,duration:.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none reverse'}});});
+  // steps slide in from alternating sides, then their rule sweeps across
+  var steps=gsap.utils.toArray('.how .step');
+  var stl=gsap.timeline({scrollTrigger:{trigger:'.how .steps',start:'top 80%',toggleActions:'play none none reverse'}});
   steps.forEach(function(s,i){var l=s.dataset.from==='left';
-    stl.from(s,{x:l?-140:140,y:30,rotate:l?-3:3,autoAlpha:0,duration:.9,ease:'expo.out'},i*.14)
-       .fromTo(s,{'--s':0},{'--s':1,duration:.7,ease:'power2.inOut'},i*.14+.35)
-       .from(s.children,{y:16,autoAlpha:0,duration:.6,stagger:.08,ease:'power2.out'},i*.14+.3);});
+    stl.from(s,{x:l?-60:60,autoAlpha:0,duration:.8,ease:'expo.out'},i*.12)
+       .fromTo(s,{'--s':0},{'--s':1,duration:.6,ease:'power2.inOut'},i*.12+.3)
+       .from(s.children,{y:14,autoAlpha:0,duration:.5,stagger:.07,ease:'power2.out'},i*.12+.25);});
+  // film step rules sweep in with the scrub (reversible, same clock)
   // menu rows sweep in from both sides
-  gsap.utils.toArray('.menu li').forEach(function(li,i){gsap.from(li,{x:li.dataset.from==='left'?-90:90,autoAlpha:0,duration:.9,ease:'expo.out',delay:i*.08,
+  gsap.utils.toArray('.menu li').forEach(function(li,i){gsap.from(li,{x:li.dataset.from==='left'?-48:48,autoAlpha:0,duration:.8,ease:'expo.out',delay:i*.07,
     scrollTrigger:{trigger:li,start:'top 90%',toggleActions:'play none none reverse'}});});
-  // photos: soft iris reveal + parallax drift
+  // photos: soft iris reveal + gentle parallax drift (scale 1.06 keeps the drift inside the frame)
   gsap.utils.toArray('.par').forEach(function(el){var img=el.querySelector('img');
-    gsap.fromTo(el,{clipPath:'inset(14% 14% 14% 14% round 6px)',scale:.94,autoAlpha:0},{clipPath:'inset(0% 0% 0% 0% round 6px)',scale:1,autoAlpha:1,duration:1.4,ease:'expo.out',scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none reverse'}});
-    gsap.fromTo(img,{yPercent:-(+el.dataset.speed||8)/2,scale:1.1},{yPercent:(+el.dataset.speed||8)/2,scale:1.1,ease:'none',scrollTrigger:{trigger:el,start:'top bottom',end:'bottom top',scrub:true}});});
+    gsap.fromTo(el,{clipPath:'inset(12% 12% 12% 12% round 6px)',autoAlpha:0},{clipPath:'inset(0% 0% 0% 0% round 6px)',autoAlpha:1,duration:1.1,ease:'expo.out',scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none reverse'}});
+    gsap.fromTo(img,{yPercent:-(+el.dataset.speed||8)/3,scale:1.06},{yPercent:(+el.dataset.speed||8)/3,scale:1.06,ease:'none',scrollTrigger:{trigger:el,start:'top bottom',end:'bottom top',scrub:true}});});
   // hours rows stagger
-  gsap.from('.hours tr',{x:40,autoAlpha:0,duration:.7,stagger:.06,ease:'power3.out',scrollTrigger:{trigger:'.hours',start:'top 85%',toggleActions:'play none none reverse'}});
-  addEventListener('load',function(){ScrollTrigger.refresh();});
+  gsap.from('.hours tr',{x:32,autoAlpha:0,duration:.6,stagger:.05,ease:'power3.out',scrollTrigger:{trigger:'.hours',start:'top 85%',toggleActions:'play none none reverse'}});
+  addEventListener('load',function(){chrome();ScrollTrigger.refresh();});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){chrome();ScrollTrigger.refresh();});
 })();
