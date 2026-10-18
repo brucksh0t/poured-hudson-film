@@ -22,30 +22,40 @@
   if(!/\bmotion\b/.test(root.className))return;
   if(!window.gsap||!window.ScrollTrigger){root.classList.remove('motion');return;}
   gsap.registerPlugin(ScrollTrigger);
-  var mobile=window.matchMedia('(max-width:899px)').matches, SET=mobile?'m':'d';
+  var mobile=window.matchMedia('(max-width:899px)').matches;
+  // Tiers (upscaled 2x from 720p with Topaz Proteus, WebP q85): m = 1080x1440 portrait crop for phones,
+  // d = 1920x1080, x = 2560x1440 for large or high-DPR desktop screens. Picked from CSS size x DPR.
+  var FV='3',TIERS=[{k:'d',h:1080},{k:'x',h:1440}];
+  function cap(){return Math.min(window.devicePixelRatio||1,2);}
 
   // ---------- Film engine: canvas WebP sequences, progressive load ----------
   function Film(sec){
     var self=this;this.sec=sec;this.n=+sec.dataset.frames;this.name=sec.dataset.film;
     this.cv=sec.querySelector('canvas');this.ctx=this.cv.getContext('2d');this.poster=sec.querySelector('.film__poster');
-    this.imgs=new Array(this.n);this.ok=new Uint8Array(this.n);this.cur=0;this.started=false;this.shown=false;
+    this.cur=0;this.started=false;this.shown=false;this.set=null;this.gen=0;this.reset();
     this.size();
   }
-  Film.prototype.src=function(i){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+SET+'/'+s+'.webp?v=2';};
-  Film.prototype.size=function(){var d=Math.min(window.devicePixelRatio||1,2),w=this.cv.clientWidth||innerWidth,h=this.cv.clientHeight||innerHeight;
-    this.cv.width=Math.round(w*d);this.cv.height=Math.round(h*d);this.draw(this.cur,true);};
-  Film.prototype.start=function(){if(this.started)return;this.started=true;var self=this,order=[],seen={};
+  Film.prototype.reset=function(){this.gen++;this.imgs=new Array(this.n);this.ok=new Uint8Array(this.n);this.drawn=-1;};
+  Film.prototype.pick=function(){if(mobile)return 'm';var c=this.cv,need=Math.max((c.clientWidth||innerWidth)*cap()/16*9,(c.clientHeight||innerHeight)*cap()),t=TIERS[0];
+    for(var i=0;i<TIERS.length;i++){t=TIERS[i];if(t.h>=need*.9)break;}return t.k;};
+  Film.prototype.src=function(i){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+this.set+'/'+s+'.webp?v='+FV;};
+  Film.prototype.size=function(){var d=cap(),w=this.cv.clientWidth||innerWidth,h=this.cv.clientHeight||innerHeight;
+    this.cv.width=Math.round(w*d);this.cv.height=Math.round(h*d);this.ctx.imageSmoothingEnabled=true;this.ctx.imageSmoothingQuality='high';
+    var t=this.pick();if(t!==this.set){var had=this.set;this.set=t;if(had){this.reset();if(this.started){this.started=false;this.start();}}}
+    this.draw(this.cur,true);};
+  Film.prototype.start=function(){if(this.started)return;this.started=true;var self=this,order=[],seen={},g=this.gen;
     [16,8,4,2,1].forEach(function(s){for(var i=0;i<self.n;i+=s)if(!seen[i]){seen[i]=1;order.push(i);}});
     if(!seen[self.n-1])order.splice(1,0,self.n-1);
     var k=0,live=0,MAX=6;
-    function next(){while(live<MAX&&k<order.length){(function(i){live++;var im=new Image();im.decoding='async';
-      im.onload=function(){self.imgs[i]=im;self.ok[i]=1;live--;if(Math.abs(i-self.cur)<=16)self.draw(self.cur,true);next();};
+    function next(){if(g!==self.gen)return;while(live<MAX&&k<order.length){(function(i){live++;var im=new Image();im.decoding='async';
+      im.onload=function(){if(g!==self.gen)return;self.imgs[i]=im;self.ok[i]=1;live--;if(Math.abs(i-self.cur)<=16)self.draw(self.cur,true);next();};
       im.onerror=function(){live--;next();};im.src=self.src(i);})(order[k++]);}}
     next();};
+  Film.prototype.state=function(){var im=this.imgs[this.drawn];return {name:this.name,set:this.set,n:this.n,cur:this.cur,drawn:this.drawn,loaded:this.ok.reduce(function(a,b){return a+b;},0),cw:this.cv.width,ch:this.cv.height,src:im?im.naturalWidth+'x'+im.naturalHeight:null};};
   Film.prototype.draw=function(f,force){f=Math.max(0,Math.min(this.n-1,Math.round(f)));if(f===this.cur&&!force&&this.drawn===f)return;this.cur=f;
-    var i=f,j=f,im=null;while(i>=0||j<this.n){if(i>=0&&this.ok[i]){im=this.imgs[i];break;}if(j<this.n&&this.ok[j]){im=this.imgs[j];break;}i--;j++;}
+    var i=f,j=f,im=null,at=-1;while(i>=0||j<this.n){if(i>=0&&this.ok[i]){im=this.imgs[i];at=i;break;}if(j<this.n&&this.ok[j]){im=this.imgs[j];at=j;break;}i--;j++;}
     if(!im)return;var c=this.cv,cw=c.width,ch=c.height,s=Math.max(cw/im.naturalWidth,ch/im.naturalHeight),w=im.naturalWidth*s,h=im.naturalHeight*s;
-    this.ctx.drawImage(im,(cw-w)/2,(ch-h)/2,w,h);this.drawn=f;
+    this.ctx.drawImage(im,(cw-w)/2,(ch-h)/2,w,h);this.drawn=at;
     if(!this.shown){this.shown=true;gsap.to(this.poster,{autoAlpha:0,duration:.6});}};
 
   var films=[].slice.call(document.querySelectorAll('[data-film]')).map(function(s){return new Film(s);});
@@ -66,7 +76,7 @@
     var bar=f.sec.querySelector('.film__progress span');if(bar)tl.to(bar,{scaleX:1,duration:10},0);
     if(hero){
       capOut(tl,caps[0],2.2);capIn(tl,caps[1],3.3);capOut(tl,caps[1],5.6);capIn(tl,caps[2],6.6);
-      tl.to(f.sec.querySelector('.film__stage'),{scale:1.04,duration:10},0);
+      // no stage zoom: the hero ends on the real bar photo at its own scale
     }else if(caps.length===2){
       capIn(tl,caps[0],1);capOut(tl,caps[0],4.2);capIn(tl,caps[1],6);capOut(tl,caps[1],9.2);
     }else{

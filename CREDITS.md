@@ -44,15 +44,15 @@ Two families: Cormorant Garamond (display, headings, ALL-CAPS buttons/labels) an
 - Upgrade prices: not posted.
 
 ## Motion (AI-generated)
-The scroll-scrubbed footage on this page is AI-generated video, made from the shop's own photos listed above (image-to-video, with first/last-frame chaining). It is not footage filmed at the shop. The hero's second clip is a simple tilt that starts and ends on frames from the shop's bar photo (the real shelf of fragrance bottles behind the bar). The wax stream and the single-wick close-up are invented by the model; they show the process, not a specific moment at the shop.
+The scroll-scrubbed footage on this page is AI-generated video, made from the shop's own photos listed above (image-to-video, with first/last-frame chaining). It is not footage filmed at the shop. The hero ends on the shop's real bar photo. The wax stream and the single-wick close-up are invented by the model; they show the process, not a specific moment at the shop.
 
 | Sequence | Frames | Made from |
 |---|---|---|
-| frames/hero (walk in → bar → tilt up to the fragrance shelf) | 168 (8 s + 6 s, every 2nd frame) | Clip 1 starts on img/shop.jpg and ends on img/bar.jpg. Clip 2 starts on clip 1's last frame and ends on a crop of the top of img/bar.jpg (the fragrance shelf). The join was trimmed by 2 frames to remove a snap. |
+| frames/hero (walk in → the bar) | 74 (clip 1, every 2nd frame) | Clip 1 starts on img/shop.jpg and ends on img/bar.jpg. A stretch where the model invented a room (old frames 044–060) is cut, with a short dissolve across the cut. The last frame is the real bar photo itself (PCB_4524, full width, no zoom), not a generated frame. The shelf-tilt clip 2 is no longer used. |
 | frames/pour (creamy wax pours into a vessel) | 97 (8 s) | Starts on a crop of img/tray.jpg (the vessels and marble dish, with the labelled bottle left out) |
-| frames/wick (a wick is lit, the flame blooms) | 97 (8 s) | Ends on img/bowl.jpg |
+| frames/wick (a wick is lit, the flame blooms) | 49 (8 s clip, every 2nd frame, old frames 029–076 cut) | Ends on img/bowl.jpg. The cut removes ghosted flames; the join fades briefly through dark. |
 
-Desktop frames are 1280×720 WebP. Mobile frames are 540×720 center crops. Posters and stills are first or last frames from the same clips. When reduced motion is on, or JS is off, the page shows the stills and all of the content without scroll-scrubbing.
+Frames are WebP (quality 85), cut after a 2× upscale of the 720p clips with Topaz Video AI (Proteus): `x/` 2560×1440 for large or high-DPR desktop screens, `d/` 1920×1080, and `m/` 1080×1440 center crops for phones (the same framing as the old 540×720 crops). The page picks a tier from the canvas CSS size × devicePixelRatio (capped at 2). Posters and stills are first or last frames from the same clips. When reduced motion is on, or JS is off, the page shows the stills and all of the content without scroll-scrubbing.
 
 ## Code
 GSAP 3.12.5 + ScrollTrigger, served locally from js/ (standard GSAP license).
