@@ -175,8 +175,11 @@ html:not(.motion) .film--pour .caps{margin-top:0}
 }
 @media (prefers-reduced-motion:reduce){.js .btn--hdr,.js .mbar{transition:none!important}}
 /* soft scrim behind the hero copy (no edge: fill + same-colour blurred shadow) */
-.motion .cap--hero,html:not(.motion) .cap--hero{background:rgba(14,10,7,.5);box-shadow:0 0 90px 70px rgba(14,10,7,.5);border-radius:60px}
-@media (max-width:899px){html:not(.motion) .cap--hero{background:none;box-shadow:none}}
+.cap--hero .cap__in{position:relative;isolation:isolate}
+.motion .cap--hero .cap__in::before,html:not(.motion) .cap--hero .cap__in::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgba(14,10,7,.5);box-shadow:0 0 90px 70px rgba(14,10,7,.5);border-radius:60px}
+.motion .cap--hero .cap__in::before{animation:scrimIn .7s var(--ease) both}
+@keyframes scrimIn{from{opacity:0}}
+@media (max-width:899px){html:not(.motion) .cap--hero .cap__in::before{display:none}}
 /* impact stages fade at top/bottom 14%; keep the label inside the opaque band */
 .motion .film--impact .film__label{bottom:16%}
 /* nav: no hard bottom edge over bright footage */
@@ -188,8 +191,12 @@ html:not(.motion) .film--pour .caps{margin-top:0}
   .motion .steps--film{display:grid}
   .motion .steps--film .step{grid-area:1/1}
   html:not(.motion) .film--hero .caps{margin-top:-1.25rem}
+  /* reduced motion: keep BOOK A POUR in the first 844px screen */
+  html:not(.motion) .film--hero .film__poster{aspect-ratio:2.2/1;max-height:30vh}
+  html:not(.motion) .cap--hero .lede{margin-top:.8rem}
+  html:not(.motion) .cap--hero .btns{margin-top:1rem}
 }
 .motion .cap--left{background:rgba(14,10,7,.86);box-shadow:0 0 70px 50px rgba(14,10,7,.86)}
-.motion .cap--hero{clip-path:inset(-240px);transition:clip-path .7s var(--ease)}
-.motion:not(.fonts-in) .cap--hero{clip-path:inset(0 0 100% 0)}
-.motion:not(.fonts-in) .cap--hero>*{opacity:0}
+/* hero copy stays transparent until webfonts are in, so the swap can't shift visible text (CLS) */
+.motion:not(.fonts-in) .cap--hero{visibility:hidden!important}
+.motion:not(.fonts-in) .cap--hero .cap__in::before{animation:none}

@@ -86,8 +86,10 @@
 
   // crisp caption beats: opacity + short rise, no blur; fully opaque at rest
   function capIn(tl,el,at){tl.fromTo(el,{autoAlpha:0,y:28},{autoAlpha:1,y:0,duration:.6,ease:'power3.out'},at);}
-  function capOut(tl,el,at){tl.to(el,{autoAlpha:0,y:-20,duration:.5,ease:'power2.in'},at);}
+  // explicit from-values: the scrubbed timeline never captures a pre-reveal (hidden) state, so reverse always restores opacity 1
+  function capOut(tl,el,at){tl.fromTo(el,{autoAlpha:1,y:0},{autoAlpha:0,y:-20,duration:.5,ease:'power2.in',immediateRender:false},at);}
 
+  var heroTl=null;
   films.forEach(function(f){
     var caps=[].slice.call(f.sec.querySelectorAll('.cap')),isHero=f.name==='hero',o={f:0};
     var len=isHero?320:f.name==='pour'?280:240;
@@ -95,7 +97,7 @@
       onUpdate:function(st){f.draw(o.f);if(isHero)ctaOut(st.progress>.2);}, onLeave:function(){if(isHero)ctaOut(true);}, onEnterBack:function(st){if(isHero)ctaOut(st.progress>.2);}}});
     tl.to(o,{f:f.n-1,duration:10,onUpdate:function(){f.draw(o.f);}},0);
     if(isHero){
-      capOut(tl,caps[0],2.2);capIn(tl,caps[1],6.2);
+      capOut(tl,caps[0],2.2);capIn(tl,caps[1],6.2);heroTl=tl;
     }else if(f.name==='pour'){
       var st=[].slice.call(f.sec.querySelectorAll('.steps--film .step'));
       capIn(tl,caps[0],2.6);
@@ -120,13 +122,15 @@
     gsap.from(ws,{yPercent:110,duration:.8,ease:'expo.out',stagger:.04,scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none reverse'}});});
 
   gsap.utils.toArray('.rv').forEach(function(el){gsap.from(el,{y:24,autoAlpha:0,duration:.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none reverse'}});});
-  var introd=false;function intro(){if(introd)return;introd=true;root.classList.add('fonts-in');
+  var introd=false;function intro(){if(introd)return;introd=true;chrome();root.classList.add('fonts-in');
+    // the timeline may have recorded the pre-font hidden state; re-sync the hero cap to the scroll position
+    if(heroTl){var hc=document.querySelector('.cap--hero');if(heroTl.time()<2.2)gsap.set(hc,{autoAlpha:1,y:0});}
     var tl=gsap.timeline();if(heroWords)tl.from(heroWords,{yPercent:110,duration:.7,ease:'expo.out',stagger:.04},0);
     tl.from('.cap--hero .kicker, .cap--hero .lede, .cap--hero .today__row, .cap--hero .btns',{y:18,autoAlpha:0,duration:.55,ease:'power3.out',stagger:.07},.12);}
   // wait for the (non-blocking) font stylesheet, then the three faces used above the fold
   (function(){setTimeout(intro,2500);var ln=document.querySelector('link[rel=stylesheet][href*="fonts.googleapis"]');
     function faces(){if(!document.fonts||!document.fonts.load)return intro();
-      Promise.all(['600 1em "Cormorant Garamond"','italic 500 1em "Cormorant Garamond"','400 1em Karla','600 1em Karla'].map(function(f){return document.fonts.load(f);})).then(intro,intro);}
+      Promise.all(['600 1em "Cormorant Garamond"','700 1em "Cormorant Garamond"','italic 500 1em "Cormorant Garamond"','400 1em Karla','600 1em Karla'].map(function(f){return document.fonts.load(f);})).then(intro,intro);}
     if(!ln||ln.media==='all')faces();else ln.addEventListener('load',function(){setTimeout(faces,0);});})();
   // steps slide in from alternating sides, then their rule sweeps across
   var steps=gsap.utils.toArray('.how .step');
