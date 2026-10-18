@@ -123,7 +123,7 @@
   var introd=false;function intro(){if(introd)return;introd=true;root.classList.add('fonts-in');
     var tl=gsap.timeline();if(heroWords)tl.from(heroWords,{yPercent:110,duration:.7,ease:'expo.out',stagger:.04},0);
     tl.from('.cap--hero .kicker, .cap--hero .lede, .cap--hero .today__row, .cap--hero .btns',{y:18,autoAlpha:0,duration:.55,ease:'power3.out',stagger:.07},.12);}
-  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(intro);setTimeout(intro,1200);}else intro();
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(intro);setTimeout(intro,2500);}else intro();
   // steps slide in from alternating sides, then their rule sweeps across
   var steps=gsap.utils.toArray('.how .step');
   var stl=gsap.timeline({scrollTrigger:{trigger:'.how .steps',start:'top 80%',toggleActions:'play none none reverse'}});
