@@ -44,12 +44,12 @@ Two families: Cormorant Garamond (display, headings, ALL-CAPS buttons/labels) an
 - Upgrade prices: not posted.
 
 ## Motion (AI-generated)
-The scroll-scrubbed footage on this page is AI-generated video, made from the shop's own photos listed above (image-to-video, with first/last-frame chaining). It is not footage filmed at the shop. Some details (for example the wall of amber bottles in the hero's second half, the wax stream, and the single-wick close-up) are invented by the model and do not show the real shop.
+The scroll-scrubbed footage on this page is AI-generated video, made from the shop's own photos listed above (image-to-video, with first/last-frame chaining). It is not footage filmed at the shop. The hero's second clip is a simple tilt that starts and ends on frames from the shop's bar photo (the real shelf of fragrance bottles behind the bar). The wax stream and the single-wick close-up are invented by the model; they show the process, not a specific moment at the shop.
 
 | Sequence | Frames | Made from |
 |---|---|---|
-| frames/hero (walk in → bar → wall of scents) | 193 (2 clips × 8 s, every 2nd frame) | Clip 1 starts on img/shop.jpg and ends on img/bar.jpg. Clip 2 starts on clip 1's exact last frame, so there is no seam. |
-| frames/pour (wax pours into a vessel) | 97 (8 s) | Starts on img/tray.jpg |
+| frames/hero (walk in → bar → tilt up to the fragrance shelf) | 168 (8 s + 6 s, every 2nd frame) | Clip 1 starts on img/shop.jpg and ends on img/bar.jpg. Clip 2 starts on clip 1's last frame and ends on a crop of the top of img/bar.jpg (the fragrance shelf). The join was trimmed by 2 frames to remove a snap. |
+| frames/pour (creamy wax pours into a vessel) | 97 (8 s) | Starts on a crop of img/tray.jpg (the vessels and marble dish, with the labelled bottle left out) |
 | frames/wick (a wick is lit, the flame blooms) | 97 (8 s) | Ends on img/bowl.jpg |
 
 Desktop frames are 1280×720 WebP. Mobile frames are 540×720 center crops. Posters and stills are first or last frames from the same clips. When reduced motion is on, or JS is off, the page shows the stills and all of the content without scroll-scrubbing.
