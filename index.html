@@ -8,15 +8,13 @@
 <meta name="theme-color" content="#140f0b">
 <link rel="icon" type="image/png" href="img/favicon.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<script>(function(d){var c=d.documentElement;c.className='js';if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)c.className+=' motion';})(document);</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Karla:wght@400;600&display=swap">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Karla:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Karla:wght@400;600&display=swap" rel="stylesheet"></noscript>
+<script>(function(d){var c=d.documentElement,n=navigator.connection||{};c.className='js';if(n.saveData||/(^|-)2g$/.test(n.effectiveType||''))c.className+=' lite';else if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)c.className+=' motion';})(document);</script>
+<link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-garamond.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/karla.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-garamond-italic.woff2" crossorigin>
 <link rel="preload" as="image" type="image/webp" media="(max-width:899px)" imagesrcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" imagesizes="100vw" fetchpriority="high">
 <link rel="preload" as="image" type="image/webp" media="(min-width:900px)" imagesrcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" imagesizes="100vw" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=7">
+<link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
 <aside class="flag" aria-label="Notice"><p>Concept preview · not affiliated with Poured Candle Bar</p></aside>
@@ -34,8 +32,8 @@
     <picture><source type="image/webp" media="(max-width:899px)" srcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" sizes="100vw"><source type="image/webp" srcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/hero-1280.jpg" alt="The long shop interior: a bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1280" height="720" fetchpriority="high"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__veil" aria-hidden="true"></div>
-    <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   </div>
+  <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   <div class="caps">
     <div class="cap cap--hero"><div class="cap__in">
       <p class="kicker">Warren Street · Hudson, NY (address: call to confirm)</p>
@@ -60,25 +58,27 @@
     <ol class="steps">
       <li class="step" data-from="left"><span class="step__n">1 · BOOK</span><p>Reserve a seat for everyone in your party; each person makes their own fragrance (no shared experiences). Groups of 5 or more should call before booking online.</p></li>
       <li class="step" data-from="right"><span class="step__n">2 · BLEND</span><p>Staff help you build a scent combination from 40+ fragrances, made with perfume-grade fragrance and essential oils. Wine, beer, and cider are available at the bar. No outside food or drink.</p></li>
+      <li class="step" data-from="left"><span class="step__n">3 · POUR</span><p>A booking includes an 8 oz candle in amber or black glass. At the bar you can upgrade to larger tinted glass, ceramic, iron, marble, or stone vessels, or to a cologne, perfume, or reed diffuser. Upgrade prices vary: ask at the bar.</p></li>
+      <li class="step" data-from="right"><span class="step__n">4 · PICK UP</span><p>Candles cure for about 120 minutes. If you start within 3 hours of closing, pick up the next day or pay to have it shipped.</p></li>
 </ol>
     <figure class="barshot"><div class="feather par" data-speed="-8"><picture><source type="image/webp" srcset="img/bar-600.webp 600w, img/bar-1200.webp 1200w" sizes="(min-width:900px) 380px, 90vw"><img src="img/bar.jpg" alt="The blending bar: a scent-notes clipboard and pencil, a glass of red wine, and a small beaker on a black tray, with wine bottles and shelves of fragrance bottles behind." width="1200" height="1500" loading="lazy" decoding="async" fetchpriority="low"></picture></div><figcaption>The blending bar. Photo: pouredcandlebar.com</figcaption></figure>
   </div>
 </section>
 
 <!-- IMPACT: the pour -->
-<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="105" aria-labelledby="pour-h">
+<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="70" aria-labelledby="pour-h">
   <div class="film__stage">
     <picture><source type="image/webp" srcset="img/pour-end-1280.webp 1280w, img/pour-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/pour-end-1280.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__veil" aria-hidden="true"></div>
-    <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   </div>
+  <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   <div class="caps">
     <div class="cap cap--side">
       <h2 id="pour-h" class="sr-only">The pour and pick-up</h2>
       <ol class="steps steps--film" start="3">
-      <li class="step"><span class="step__n">3 · POUR</span><p>A booking includes an 8 oz candle in amber or black glass. At the bar you can upgrade to larger tinted glass, ceramic, iron, marble, or stone vessels, or to a cologne, perfume, or reed diffuser. Upgrade prices vary: ask at the bar.</p></li>
-      <li class="step"><span class="step__n">4 · PICK UP</span><p>Candles cure for about 120 minutes. If you start within 3 hours of closing, pick up the next day or pay to have it shipped.</p></li>
+      <li class="step"><span class="step__n">3 · POUR</span><p class="cap__big">Pour your own blend.</p></li>
+      <li class="step"><span class="step__n">4 · PICK UP</span><p class="cap__big">Let it cure, then pick it up.</p></li>
           </ol>
     </div>
   </div>
@@ -107,13 +107,13 @@
 </section>
 
 <!-- IMPACT: the wick -->
-<div class="pin-spacer"><section class="film film--impact film--wick" data-film="wick" data-frames="49" aria-label="Lighting the wick">
+<div class="pin-spacer"><section class="film film--impact film--wick" data-film="wick" data-frames="41" aria-label="Lighting the wick">
   <div class="film__stage">
     <picture><source type="image/webp" srcset="img/wick-end-1280.webp 1280w, img/wick-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/end-wick.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__veil" aria-hidden="true"></div>
-    <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   </div>
+  <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
   <div class="caps">
     <div class="cap cap--center cap--scrim"><p class="cap__big cap__quote">“All of our scents + candles are handcrafted in Hudson, New York.”</p></div>
   </div>
@@ -170,6 +170,6 @@
 </div>
 <script src="js/gsap.min.js" defer></script>
 <script src="js/ScrollTrigger.min.js" defer></script>
-<script src="main.js?v=9" defer></script>
+<script src="main.js?v=11" defer></script>
 </body>
 </html>
