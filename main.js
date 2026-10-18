@@ -123,7 +123,11 @@
   var introd=false;function intro(){if(introd)return;introd=true;root.classList.add('fonts-in');
     var tl=gsap.timeline();if(heroWords)tl.from(heroWords,{yPercent:110,duration:.7,ease:'expo.out',stagger:.04},0);
     tl.from('.cap--hero .kicker, .cap--hero .lede, .cap--hero .today__row, .cap--hero .btns',{y:18,autoAlpha:0,duration:.55,ease:'power3.out',stagger:.07},.12);}
-  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(intro);setTimeout(intro,2500);}else intro();
+  // wait for the (non-blocking) font stylesheet, then the three faces used above the fold
+  (function(){setTimeout(intro,2500);var ln=document.querySelector('link[rel=stylesheet][href*="fonts.googleapis"]');
+    function faces(){if(!document.fonts||!document.fonts.load)return intro();
+      Promise.all(['600 1em "Cormorant Garamond"','italic 500 1em "Cormorant Garamond"','400 1em Karla','600 1em Karla'].map(function(f){return document.fonts.load(f);})).then(intro,intro);}
+    if(!ln||ln.media==='all')faces();else ln.addEventListener('load',function(){setTimeout(faces,0);});})();
   // steps slide in from alternating sides, then their rule sweeps across
   var steps=gsap.utils.toArray('.how .step');
   var stl=gsap.timeline({scrollTrigger:{trigger:'.how .steps',start:'top 80%',toggleActions:'play none none reverse'}});
