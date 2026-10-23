@@ -228,3 +228,7 @@ html:not(.motion) .film--pour .caps{margin-top:0}
 .film__label .lab-photo{display:none}
 .film__label.is-photo .lab-ai{display:none}
 .film__label.is-photo .lab-photo{display:inline}
+/* reduced motion / no film: the hero label sits at the foot of the photo, and the header is solid, so the label never shows through it */
+html:not(.motion) .film--hero .film__label{top:calc(100vh - var(--chrome,125px) - 3.2rem);bottom:auto;z-index:6}
+@media (max-width:899px){html:not(.motion) .film--hero .film__label{top:calc(min(100vw / 2.2, 30vh) - 2.4rem);right:.75rem}}
+html:not(.motion) .nav{background:#14100b}

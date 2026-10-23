@@ -14,7 +14,7 @@
 <link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-garamond-italic.woff2" crossorigin>
 <link rel="preload" as="image" type="image/webp" media="(max-width:899px)" imagesrcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" imagesizes="100vw" fetchpriority="high">
 <link rel="preload" as="image" type="image/webp" media="(min-width:900px)" imagesrcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" imagesizes="100vw" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=12">
+<link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body>
 <aside class="flag" aria-label="Notice"><p>Concept preview · not affiliated with Poured Candle Bar</p></aside>
@@ -27,7 +27,7 @@
 
 <main>
 <!-- HERO: scroll-scrubbed film (walk in → wall of scents) -->
-<div class="pin-spacer"><section class="film film--hero" id="today" data-film="hero" data-frames="100" data-photo-from="85" data-dips="34:.76,35:.53,36:.32,37:.48,38:.77" aria-labelledby="hero-h">
+<div class="pin-spacer"><section class="film film--hero" id="today" data-film="hero" data-frames="100" data-photo="85-100" data-dips="34:.76,35:.53,36:.32,37:.48,38:.77" aria-labelledby="hero-h">
   <div class="film__stage">
     <picture><source type="image/webp" media="(max-width:899px)" srcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" sizes="100vw"><source type="image/webp" srcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/hero-1280.jpg" alt="The long shop interior: a bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1280" height="720" fetchpriority="high"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
@@ -82,14 +82,14 @@
 </section>
 
 <!-- IMPACT: the pour -->
-<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="70" data-dips="2:.71,3:.43,4:.27,5:.24,6:.47,7:.56,8:.69,9:.8,10:.91" aria-labelledby="pour-h">
+<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="70" data-photo="1-5" data-dips="2:.71,3:.43,4:.27,5:.24,6:.47,7:.56,8:.69,9:.8,10:.91" aria-labelledby="pour-h">
   <div class="film__stage">
     <picture><source type="image/webp" srcset="img/pour-end-1280.webp 1280w, img/pour-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/pour-end-1280.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__dip" aria-hidden="true"></div>
     <div class="film__veil" aria-hidden="true"></div>
   </div>
-  <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
+  <p class="film__label"><span class="lab-ai">Illustrative · AI-generated from the shop’s photos</span><span class="lab-photo">Photo: Poured · their experience tray</span></p>
   <div class="caps">
     <div class="cap cap--side">
       <h2 id="pour-h" class="sr-only">The pour and pick-up</h2>
@@ -188,6 +188,6 @@
 </div>
 <script src="js/gsap.min.js" defer></script>
 <script src="js/ScrollTrigger.min.js" defer></script>
-<script src="main.js?v=19" defer></script>
+<script src="main.js?v=20" defer></script>
 </body>
 </html>

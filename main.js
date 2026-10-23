@@ -38,7 +38,7 @@
   // d = 1920x1080, x = 2560x1440 for large or high-DPR desktop screens. Picked from canvas CSS size x DPR.
   // Each tier has a light preview ladder (mq 360x480 / dq 480x270, every 3rd frame) that lands first on slow links;
   // the sharp frame replaces it as soon as it arrives.
-  var FV='10',TIERS=[{k:'d',h:1080},{k:'x',h:1440}],STEP=3;
+  var FV='11',TIERS=[{k:'d',h:1080},{k:'x',h:1440}],STEP=3;
   function cap(){return Math.min(window.devicePixelRatio||1,2);}
 
   // ---------- Film engine: canvas WebP sequences ----------
@@ -56,7 +56,8 @@
     var n=this.n,B=this.B=new Float32Array(n).fill(1),self=this;this.dip=sec.querySelector('.film__dip');this.key={};this.bounds=[];
     (sec.dataset.dips||'').split(',').forEach(function(x){if(!x)return;var kv=x.split(':');B[+kv[0]]=+kv[1];});
     for(var i=1;i<n-1;i++)if(B[i]<1&&B[i]<B[i-1]&&B[i]<=B[i+1]){this.bounds.push(i);[i-3,i,i+3].forEach(function(k){if(k>=0&&k<n)self.key[k]=1;});}
-    this.photo=+(sec.dataset.photoFrom||0);this.label=sec.parentElement.querySelector('.film__label')||sec.querySelector('.film__label');this.isPhoto=false;
+    // real-photo frames (1-based ranges, e.g. "1-5,85-100") get the photo label instead of the AI one
+    this.photo=(sec.dataset.photo||'').split(',').filter(Boolean).map(function(r){var ab=r.split('-');return [+ab[0]-1,+(ab[1]||ab[0])-1];});if(!this.photo.length)this.photo=0;this.label=sec.parentElement.querySelector('.film__label')||sec.querySelector('.film__label');this.isPhoto=false;
     this.inflight={};this.reset();this.size();
   }
   // first and last frame of the shot that frame f belongs to
@@ -91,8 +92,8 @@
       previews:this.lok.reduce(function(a,b){return a+b;},0),requested:this.req.reduce(function(a,b){return a+b;},0)+this.lreq.reduce(function(a,b){return a+b;},0),
       cw:this.cv.width,ch:this.cv.height,src:im?im.naturalWidth+'x'+im.naturalHeight:null};};
   Film.prototype.draw=function(f,force){this.pf=Math.max(0,Math.min(this.n-1,+f||0));f=Math.round(this.pf);
-    // the hero's last stretch is their real photo, not generated footage: the label says so (and switches back on reverse)
-    if(this.photo&&this.label){var ph=f>=this.photo-1;if(ph!==this.isPhoto){this.isPhoto=ph;this.label.classList.toggle('is-photo',ph);}}
+    // real-photo stretches (the pour's opening tray shot, the hero's closing pan) are labelled as their photo, and switch back on reverse
+    if(this.photo&&this.label){var ph=this.photo.some(function(r){return f>=r[0]&&f<=r[1];});if(ph!==this.isPhoto){this.isPhoto=ph;this.label.classList.toggle('is-photo',ph);}}
     this.setDip();if(f===this.cur&&!force)return;
     var now=Date.now();if(f!==this.cur){var dt=(now-(this.t0||now))/1000;if(dt>0)this.v=(this.v||0)*.5+Math.min(Math.abs(f-this.cur)/dt,240)*.5;this.t0=now;this.dir=f>this.cur?1:-1;}this.cur=f;
     // nearest sharp frame vs nearest preview; a preview wins only when it is 2+ frames closer
