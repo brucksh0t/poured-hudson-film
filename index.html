@@ -12,9 +12,8 @@
 <link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-garamond.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="fonts/karla.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-garamond-italic.woff2" crossorigin>
-<link rel="preload" as="image" type="image/webp" media="(max-width:899px)" imagesrcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" imagesizes="100vw" fetchpriority="high">
-<link rel="preload" as="image" type="image/webp" media="(min-width:900px)" imagesrcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" imagesizes="100vw" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=13">
+<link rel="preload" as="image" type="image/webp" href="img/hero-1280.webp?v=2" fetchpriority="high">
+<link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
 <aside class="flag" aria-label="Notice"><p>Concept preview · not affiliated with Poured Candle Bar</p></aside>
@@ -27,14 +26,13 @@
 
 <main>
 <!-- HERO: scroll-scrubbed film (walk in → wall of scents) -->
-<div class="pin-spacer"><section class="film film--hero" id="today" data-film="hero" data-frames="100" data-photo="85-100" data-dips="34:.76,35:.53,36:.32,37:.48,38:.77" aria-labelledby="hero-h">
-  <div class="film__stage">
-    <picture><source type="image/webp" media="(max-width:899px)" srcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" sizes="100vw"><source type="image/webp" srcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/hero-1280.jpg" alt="The long shop interior: a bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1280" height="720" fetchpriority="high"></picture>
+<div class="pin-spacer"><section class="film film--hero" id="today" data-film="hero" data-frames="100" data-photo="85-100" data-cuts="37,84" aria-labelledby="hero-h">
+  <div class="film__stage"><div class="film__frame">
+    <picture><source type="image/webp" srcset="img/hero-1280.webp?v=2"><img class="film__poster" src="img/hero-1280.jpg?v=2" alt="The long shop interior: a bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1280" height="720" fetchpriority="high"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__dip" aria-hidden="true"></div>
-    <div class="film__veil" aria-hidden="true"></div>
-  </div>
-  <p class="film__label"><span class="lab-ai">Illustrative · AI-generated from the shop’s photos</span><span class="lab-photo">Photo: Poured · a digital pan across their shop photo</span></p>
+    <p class="film__label"><span class="lab-ai">Illustrative · AI-generated from the shop’s photos</span><span class="lab-photo">Photo: Poured · a digital pan across their shop photo</span></p>
+  </div></div>
   <div class="caps">
     <div class="cap cap--hero"><div class="cap__in">
       <p class="kicker">Warren Street · Hudson, NY (address: call to confirm)</p>
@@ -77,19 +75,18 @@
       <li class="step" data-from="left"><span class="step__n">3 · POUR</span><p>A booking includes an 8 oz candle in amber or black glass. At the bar you can upgrade to larger tinted glass, ceramic, iron, marble, or stone vessels, or to a cologne, perfume, or reed diffuser. Upgrade prices vary: ask at the bar.</p></li>
       <li class="step" data-from="right"><span class="step__n">4 · PICK UP</span><p>Candles cure for about 120 minutes. If you start within 3 hours of closing, pick up the next day or pay to have it shipped.</p></li>
 </ol>
-    <figure class="barshot"><div class="feather par" data-speed="-8"><picture><source type="image/webp" srcset="img/bar-600.webp 600w, img/bar-1200.webp 1200w" sizes="(min-width:900px) 380px, 90vw"><img src="img/bar.jpg" alt="The blending bar: a scent-notes clipboard and pencil, a glass of red wine, and a small beaker on a black tray, with wine bottles and shelves of fragrance bottles behind." width="1200" height="1500" loading="lazy" decoding="async" fetchpriority="low"></picture></div><figcaption>The blending bar. Photo: pouredcandlebar.com</figcaption></figure>
+    <figure class="barshot"><div class="frame par" data-speed="-8" style="--pw:1200px"><picture><source type="image/webp" srcset="img/bar-600.webp 600w, img/bar-1200.webp 1200w" sizes="(min-width:900px) 380px, 90vw"><img src="img/bar.jpg" alt="The blending bar: a scent-notes clipboard and pencil, a glass of red wine, and a small beaker on a black tray, with wine bottles and shelves of fragrance bottles behind." width="1200" height="1500" loading="lazy" decoding="async" fetchpriority="low"></picture></div><figcaption>The blending bar. Photo: pouredcandlebar.com</figcaption></figure>
   </div>
 </section>
 
 <!-- IMPACT: the pour -->
-<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="70" data-photo="1-5" data-dips="2:.71,3:.43,4:.27,5:.24,6:.47,7:.56,8:.69,9:.8,10:.91" aria-labelledby="pour-h">
-  <div class="film__stage">
-    <picture><source type="image/webp" srcset="img/pour-end-1280.webp 1280w, img/pour-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/pour-end-1280.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
+<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="70" data-photo="1-5" data-cuts="5" aria-labelledby="pour-h">
+  <div class="film__stage"><div class="film__frame">
+    <picture><source type="image/webp" srcset="img/pour-end-1280.webp?v=2"><img class="film__poster" src="img/pour-end-1280.jpg?v=2" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__dip" aria-hidden="true"></div>
-    <div class="film__veil" aria-hidden="true"></div>
-  </div>
-  <p class="film__label"><span class="lab-ai">Illustrative · AI-generated from the shop’s photos</span><span class="lab-photo">Photo: Poured · their experience tray</span></p>
+    <p class="film__label"><span class="lab-ai">Illustrative · AI-generated from the shop’s photos</span><span class="lab-photo">Photo: Poured · their experience tray</span></p>
+  </div></div>
   <div class="caps">
     <div class="cap cap--side">
       <h2 id="pour-h" class="sr-only">The pour and pick-up</h2>
@@ -115,7 +112,7 @@
       <p class="note rv" id="fn-price">* Their FAQ lists $48; the booking page shows $50 as of Oct 12, 2026. The 18% service charge goes to staff for a livable wage. Call to confirm: <a href="tel:+15183033878">(518) 303-3878</a>.</p>
       <div class="btns rv"><a class="btn btn--ghost" href="https://www.pouredcandlebar.com/pages/faqs" target="_blank" rel="noopener">READ THE FAQ</a><a class="btn btn--ghost" href="https://www.pouredcandlebar.com/pages/shop-home-fragrances-at-poured-new-york" target="_blank" rel="noopener">SHOP SCENTS</a></div>
     </div>
-    <div class="pr__media"><div class="feather par" data-speed="10"><picture><source type="image/webp" srcset="img/tray-800.webp 800w, img/tray-1500.webp 1500w" sizes="(min-width:900px) 460px, 92vw"><img src="img/tray.jpg" alt="A black tray on a wooden bar holding a fragrance bottle, a marble dish, two candle vessels, and a mixing stick, next to a clipboard and a glass of wine." width="1500" height="1200" loading="lazy" decoding="async" fetchpriority="low"></picture></div></div>
+    <div class="pr__media"><div class="frame par" data-speed="10" style="--pw:1500px"><picture><source type="image/webp" srcset="img/tray-800.webp 800w, img/tray-1500.webp 1500w" sizes="(min-width:900px) 460px, 92vw"><img src="img/tray.jpg" alt="A black tray on a wooden bar holding a fragrance bottle, a marble dish, two candle vessels, and a mixing stick, next to a clipboard and a glass of wine." width="1500" height="1200" loading="lazy" decoding="async" fetchpriority="low"></picture></div></div>
   </div>
   <div class="wrap book" id="book">
     <h2 class="disp lines">Book a seat</h2>
@@ -123,15 +120,26 @@
   </div>
 </section>
 
+<!-- ONE WORD: BLEND cut out of solid amber over a real slow tilt down their blending-bar photo -->
+<section class="word-scene" id="blend" aria-labelledby="blend-h">
+  <div class="word-scene__stage">
+    <figure class="reel reel--word" data-reel="blend" data-w="1280" data-h="720" role="img" aria-label="The blending bar: wine bottles, a glass of red wine, and a scent-notes clipboard with a pencil on a black tray (a slow move down a photo from Poured’s site).">
+      <div class="reel__strip"><picture><source type="image/avif" srcset="vid/blend-strip.avif?v=1"><source type="image/webp" srcset="vid/blend-strip.webp?v=1"><img class="reel__s" src="vid/blend-strip.jpg?v=1" width="1280" height="1140" alt="" loading="lazy" decoding="async"></picture></div>
+      <svg class="word" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><mask id="word-m" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900"><rect width="1600" height="900" fill="#fff"/><text class="word__t" x="800" y="600" text-anchor="middle">BLEND</text></mask></defs><text class="word__t word__probe" x="800" y="600" text-anchor="middle" opacity="0">BLEND</text><rect class="word__fill" width="1600" height="900" mask="url(#word-m)"/></svg>
+      <p class="film__label">Photo: Poured · a slow move down their bar photo</p>
+    </figure>
+    <div class="word__cap"><p class="kicker">At the bar</p><h2 class="word__h disp" id="blend-h">Over 40 fragrances to blend</h2><p>Staff help you build a scent combination from 40+ fragrances, with wine, beer, and cider at the bar.</p></div>
+  </div>
+</section>
+
 <!-- IMPACT: the wick -->
-<div class="pin-spacer"><section class="film film--impact film--wick" data-film="wick" data-frames="41" data-dips="17:.74,18:.46,19:.2,20:.37,21:.69,22:.91" aria-label="Lighting the wick">
-  <div class="film__stage">
-    <picture><source type="image/webp" srcset="img/wick-end-1280.webp 1280w, img/wick-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/end-wick.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
+<div class="pin-spacer"><section class="film film--impact film--wick" data-film="wick" data-frames="41" data-cuts="20" aria-label="Lighting the wick">
+  <div class="film__stage"><div class="film__frame">
+    <picture><source type="image/webp" srcset="img/wick-end-1280.webp?v=2"><img class="film__poster" src="img/end-wick.jpg?v=2" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
     <div class="film__dip" aria-hidden="true"></div>
-    <div class="film__veil" aria-hidden="true"></div>
-  </div>
-  <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
+    <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
+  </div></div>
   <div class="caps">
     <div class="cap cap--center cap--scrim"><p class="cap__big cap__quote">“All of our scents + candles are handcrafted in Hudson, New York.”</p></div>
   </div>
@@ -140,7 +148,7 @@
 <!-- ABOUT -->
 <section class="sec about" id="about" aria-labelledby="ab-h">
   <div class="wrap ab__in">
-    <div class="ab__media"><div class="feather par" data-speed="-10"><picture><source type="image/webp" srcset="img/shop-800.webp 800w, img/shop-1500.webp 1500w" sizes="(min-width:900px) 560px, 92vw"><img src="img/shop.jpg" alt="The long shop interior: a white bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1500" height="1200" loading="lazy" decoding="async" fetchpriority="low"></picture></div></div>
+    <div class="ab__media"><div class="frame par" data-speed="-10" style="--pw:1500px"><picture><source type="image/webp" srcset="img/shop-800.webp 800w, img/shop-1500.webp 1500w" sizes="(min-width:900px) 560px, 92vw"><img src="img/shop.jpg" alt="The long shop interior: a white bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1500" height="1200" loading="lazy" decoding="async" fetchpriority="low"></picture></div></div>
     <div>
       <h2 id="ab-h" class="disp lines">Fragrance is decor</h2>
       <p class="rv">Poured is run by Dennis Green and Ricky Tiscareno, partners in business and life (plus Nashville, their rescue dog). Dennis came from Toronto and the luxury knitwear trade; Ricky from San Jose, by way of professional dance and tech recruiting.</p>
@@ -178,7 +186,7 @@
 
 <footer class="foot">
   <p><a href="https://www.instagram.com/pouredcandlebar/" target="_blank" rel="noopener" aria-label="@pouredcandlebar photos">@pouredcandlebar</a><a href="https://www.tiktok.com/@pouredcandlebar" target="_blank" rel="noopener" aria-label="@pouredcandlebar videos">@pouredcandlebar · video</a><a href="https://www.facebook.com/pouredcandlebar" target="_blank" rel="noopener" aria-label="pouredcandlebar page">/pouredcandlebar</a></p>
-  <p>Concept preview · not affiliated with Poured Candle Bar. Photos from the shop’s own website; motion sequences are AI-generated from those photos.</p>
+  <p>Concept preview · not affiliated with Poured Candle Bar. Photos from the shop’s own website; the scroll films are AI-generated from those photos, except frames labelled as their photo.</p>
 </footer>
 
 <div class="mbar" role="navigation" aria-label="Quick actions">
@@ -188,6 +196,6 @@
 </div>
 <script src="js/gsap.min.js" defer></script>
 <script src="js/ScrollTrigger.min.js" defer></script>
-<script src="main.js?v=20" defer></script>
+<script src="main.js?v=21" defer></script>
 </body>
 </html>

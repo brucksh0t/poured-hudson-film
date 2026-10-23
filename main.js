@@ -21,7 +21,7 @@
   var root=document.documentElement;
   // chrome height (flag + sticky nav) so the first screen can be laid out above the fold
   function chrome(){var f=document.querySelector('.flag'),nv=document.querySelector('.nav'),fh=f?f.offsetHeight:0,nh=nv?nv.offsetHeight:0;
-    root.style.setProperty('--chrome',(fh+nh)+'px');root.style.setProperty('--flag',fh+'px');root.style.setProperty('--navh',nh+'px');}
+    root.style.setProperty('--chrome',(fh+nh)+'px');root.style.setProperty('--dpr',String(window.devicePixelRatio||1));root.style.setProperty('--flag',fh+'px');root.style.setProperty('--navh',nh+'px');}
   chrome();addEventListener('resize',chrome);
   // One filled BOOK A POUR per screen: header/bar CTA shows only once the hero CTA has left the screen.
   function ctaOut(v){root.classList.toggle('cta-out',!!v);}
@@ -34,11 +34,10 @@
   }
   gsap.registerPlugin(ScrollTrigger);
   var mobile=window.matchMedia('(max-width:899px)').matches;
-  // Tiers (2x upscales of the 720p clips): m = 1080x1440 portrait crop for phones,
-  // d = 1920x1080, x = 2560x1440 for large or high-DPR desktop screens. Picked from canvas CSS size x DPR.
-  // Each tier has a light preview ladder (mq 360x480 / dq 480x270, every 3rd frame) that lands first on slow links;
-  // the sharp frame replaces it as soon as it arrives.
-  var FV='11',TIERS=[{k:'d',h:1080},{k:'x',h:1440}],STEP=3;
+  // One native tier: n = 1280x720, straight from the 720p clips and 1:1 windows of the shop's photos (nothing upscaled).
+  // The canvas sits in a hard-edged 16:9 frame never wider than 1280 device pixels, so frames draw at 1.0x or less.
+  // Light preview ladders (nq 640x360 every 3rd frame, nt 320x180 every 6th) land first on slow links.
+  var FV='12',STEP=3;
   function cap(){return Math.min(window.devicePixelRatio||1,2);}
 
   // ---------- Film engine: canvas WebP sequences ----------
@@ -50,34 +49,33 @@
     this.n=+sec.dataset.frames;this.name=sec.dataset.film;
     this.cv=sec.querySelector('canvas');this.ctx=this.cv.getContext('2d');this.poster=sec.querySelector('.film__poster');
     this.cur=0;this.pf=0;this.dir=1;this.shown=false;this.set=null;this.gen=0;this.dipA=-1;this.hold=false;
-    // dips through dark between shots (data-dips = frame:brightness relative to its shot). A scroll-driven overlay supplies the
-    // darkness the scroll position asks for whenever the drawn frame carries less (e.g. a quick cold scroll whose dip frames have
-    // not landed), so a shot change is never a hard cut. The darkest frame of each dip bounds its shot.
-    var n=this.n,B=this.B=new Float32Array(n).fill(1),self=this;this.dip=sec.querySelector('.film__dip');this.key={};this.bounds=[];
-    (sec.dataset.dips||'').split(',').forEach(function(x){if(!x)return;var kv=x.split(':');B[+kv[0]]=+kv[1];});
-    for(var i=1;i<n-1;i++)if(B[i]<1&&B[i]<B[i-1]&&B[i]<=B[i+1]){this.bounds.push(i);[i-3,i,i+3].forEach(function(k){if(k>=0&&k<n)self.key[k]=1;});}
+    // shot changes (data-cuts = 0-based first frame of each new shot) pass behind a solid panel that wipes across the frame
+    // with a hard edge, driven by the scroll position, so it reverses exactly. No fades, no dimmed frames.
+    var n=this.n,self=this;this.dip=sec.querySelector('.film__dip');this.key={};this.bounds=[];
+    (sec.dataset.cuts||'').split(',').forEach(function(x){if(!x)return;var i=+x;self.bounds.push(i);[i-3,i-1,i,i+3].forEach(function(k){if(k>=0&&k<n)self.key[k]=1;});});
     // real-photo frames (1-based ranges, e.g. "1-5,85-100") get the photo label instead of the AI one
     this.photo=(sec.dataset.photo||'').split(',').filter(Boolean).map(function(r){var ab=r.split('-');return [+ab[0]-1,+(ab[1]||ab[0])-1];});if(!this.photo.length)this.photo=0;this.label=sec.parentElement.querySelector('.film__label')||sec.querySelector('.film__label');this.isPhoto=false;
     this.inflight={};this.reset();this.size();
   }
   // first and last frame of the shot that frame f belongs to
   Film.prototype.shot=function(f){var lo=0,hi=this.n-1,b=this.bounds;for(var q=0;q<b.length;q++){if(b[q]<=f)lo=b[q];if(b[q]>=f){hi=b[q];break;}}return [lo,hi];};
-  Film.prototype.setDip=function(){if(!this.dip)return;var n=this.n,B=this.B,a=Math.floor(this.pf),t=this.pf-a,
-      b=a+1<n?B[a]*(1-t)+B[a+1]*t:B[n-1],bd=this.drawn>=0?B[this.drawn]:1,o=this.hold?1:bd>0?Math.max(0,Math.min(1,1-b/bd)):0;
-    // floor: when the drawn frame changes shot faster than a dip can render (a flick on a slow phone), the stage still passes
-    // through dark: the overlay starts black and clears over 0.3 s
-    var since=Date.now()-(this.cutT||0);if(since<300){o=Math.max(o,1-since/300);var self=this;if(!this.cutRaf)this.cutRaf=requestAnimationFrame(function(){self.cutRaf=0;self.setDip();});}
-    o=Math.round(o*100)/100;if(o!==this.dipA){this.dipA=o;this.dip.style.opacity=o;}};
+  // wipe state: -1..1 across each cut (W frames either side). The panel enters from the left edge, covers the frame at the
+  // cut, and exits off the right edge; a frame that is not on hand yet keeps the panel closed (hold).
+  var WW=2.5;
+  Film.prototype.setDip=function(){if(!this.dip)return;var pf=this.pf,b=this.bounds,u=null;
+    for(var q=0;q<b.length;q++){var d=(pf-(b[q]-.5))/WW;if(d>-1&&d<1){u=d;break;}}
+    var L=100,Rr=100;// inset left/right in %: 100/0 = hidden at left, 0/0 = covering, 0/100 = gone at right
+    if(this.hold){L=0;Rr=0;}else if(u!==null){if(u<0){L=0;Rr=Math.round(-u*1000)/10;}else{Rr=0;L=Math.round(u*1000)/10;}}else{L=0;Rr=100;}
+    var key=L+'/'+Rr;if(key!==this.dipA){this.dipA=key;this.dip.style.clipPath=(L===0&&Rr===100)?'inset(0 100% 0 0)':'inset(0 '+Rr+'% 0 '+L+'%)';}};
   Film.prototype.reset=function(){this.gen++;var n=this.n;this.full=new Array(n);this.lq=new Array(n);this.ok=new Uint8Array(n);this.lok=new Uint8Array(n);
     this.req=new Uint8Array(n);this.lreq=new Uint8Array(n);this.tq=new Array(n);this.tok=new Uint8Array(n);this.treq=new Uint8Array(n);this.drawn=-1;this.drawnQ='';};
-  Film.prototype.pick=function(){if(mobile)return 'm';var c=this.cv,need=Math.max((c.clientWidth||innerWidth)*cap()/16*9,(c.clientHeight||innerHeight)*cap()),t=TIERS[0];
-    for(var i=0;i<TIERS.length;i++){t=TIERS[i];if(t.h>=need*.9)break;}return t.k;};
+  Film.prototype.pick=function(){return 'n';};
   Film.prototype.isT=function(i){return i%(STEP*2)===0||i===this.n-1||!!this.key[i];};
   Film.prototype.isL=function(i){return i%STEP===0||i===this.n-1||!!this.key[i];};
   // sharp frames are AVIF where supported (decoded from an inline 1-pixel test, no request), WebP otherwise; previews stay WebP
   var EXT='webp',avifReady=new Promise(function(res){var t=new Image();t.onload=function(){res(t.width>0);};t.onerror=function(){res(false);};t.src='data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADrbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAETAAAAIgAAAChpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABqaXBycAAAAEtpcGNvAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAQcGl4aQAAAAADCAgIAAAADGF2MUOBAAwAAAAAE2NvbHJuY2x4AAEADQAGgAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAAKm1kYXQSAAoIGAA2iAhoNCAyFBlHh4Yhh5555oAAAJBAyRxhQoFI';}).then(function(a){if(a)EXT='avif';});
-  Film.prototype.src=function(i,lq){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+(lq?(this.set==='m'?(lq===2?'mt':'mq'):(lq===2?'dt':'dq')):this.set)+'/'+s+(lq?'.webp':'.'+EXT)+'?v='+FV;};
-  Film.prototype.size=function(){var d=cap(),w=this.cv.clientWidth||innerWidth,h=this.cv.clientHeight||innerHeight;
+  Film.prototype.src=function(i,lq){var s=String(i+1);while(s.length<3)s='0'+s;return 'frames/'+this.name+'/'+(lq?(lq===2?'nt':'nq'):this.set)+'/'+s+(lq?'.webp':'.'+EXT)+'?v='+FV;};
+  Film.prototype.size=function(){root.style.setProperty('--dpr',String(window.devicePixelRatio||1));var d=cap(),w=this.cv.clientWidth||innerWidth,h=this.cv.clientHeight||innerHeight;
     this.cv.width=Math.round(w*d);this.cv.height=Math.round(h*d);this.ctx.imageSmoothingEnabled=true;this.ctx.imageSmoothingQuality='high';
     var t=this.pick();if(t!==this.set){var had=this.set;this.set=t;if(had){this.reset();this.seed();pump();}}
     this.draw(this.cur,true);};
@@ -110,9 +108,8 @@
     var hold=at<0&&this.drawn>=0&&(this.drawn<lo||this.drawn>hi);if(hold!==this.hold){this.hold=hold;this.setDip();}
     if(at<0||(at===this.drawn&&q===this.drawnQ&&!force))return;
     var im=q==='full'?this.full[at]:q==='t'?this.tq[at]:this.lq[at];var c=this.cv,cw=c.width,ch=c.height,s=Math.max(cw/im.naturalWidth,ch/im.naturalHeight),w=im.naturalWidth*s,h=im.naturalHeight*s;
-    if(this.drawn>=0&&this.bounds.length){var s0=this.shot(this.drawn),s1=this.shot(at);if(s0[0]!==s1[0]&&Math.abs(at-this.drawn)>3&&this.B[this.drawn]>.4&&this.B[at]>.4)this.cutT=Date.now();}
     this.ctx.drawImage(im,(cw-w)/2,(ch-h)/2,w,h);this.drawn=at;this.drawnQ=q;this.setDip();
-    if(!this.shown){this.shown=true;gsap.to(this.poster,{autoAlpha:0,duration:.4});}
+    if(!this.shown){this.shown=true;gsap.set(this.poster,{autoAlpha:0});}
     pump();};
   // best next request for this film: previews first (closest to the reader), then sharp frames ahead of the scroll direction
   // lead: how far the reader will have scrubbed by the time a request lands (~0.3 s at the current scrub speed), so fast
@@ -153,10 +150,13 @@
   var sq=0;addEventListener('scroll',function(){if(sq)return;sq=requestAnimationFrame(function(){sq=0;pump();});},{passive:true});
   var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){films.forEach(function(f){f.size();});},120);});
 
-  // crisp caption beats: opacity + short rise, no blur; fully opaque at rest
-  function capIn(tl,el,at){tl.fromTo(el,{autoAlpha:0,y:28},{autoAlpha:1,y:0,duration:.6,ease:'power3.out'},at);}
-  // explicit from-values: the scrubbed timeline never captures a pre-reveal (hidden) state, so reverse always restores opacity 1
-  function capOut(tl,el,at){tl.fromTo(el,{autoAlpha:1,y:0},{autoAlpha:0,y:-20,duration:.5,ease:'power2.in',immediateRender:false},at);}
+  // caption beats: a hard-edged wipe opens the panel left to right, then its words rise through a line mask in sequence;
+  // the exit wipes it shut upward. Explicit from-values so reverse scrubbing restores every state exactly.
+  function wordsOf(el){var big=el.querySelectorAll('.cap__big');[].forEach.call(big,function(b){if(!b.querySelector('.w'))split(b);});return el.querySelectorAll('.cap__big .w>span');}
+  function capIn(tl,el,at){var ws=wordsOf(el);tl.set(el,{autoAlpha:1},at);
+    tl.fromTo(el,{clipPath:'inset(0% 100% 0% 0%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:.55,ease:'power4.inOut',immediateRender:false},at);
+    if(ws.length)tl.fromTo(ws,{yPercent:110},{yPercent:0,duration:.45,stagger:.06,ease:'power3.out',immediateRender:false},at+.2);}
+  function capOut(tl,el,at){tl.fromTo(el,{clipPath:'inset(0% 0% 0% 0%)'},{clipPath:'inset(0% 0% 100% 0%)',duration:.5,ease:'power3.in',immediateRender:false},at);tl.set(el,{autoAlpha:0},at+.5);}
 
   // the bar's BOOK A POUR fills only once the hero's own (filled) CTA has faded below half opacity: never two at once
   function heroGone(cap,st){return st.progress>.3||+gsap.getProperty(cap,'opacity')<.5||getComputedStyle(cap).visibility==='hidden';}
@@ -174,17 +174,15 @@
     }else if(f.name==='pour'){
       var st=[].slice.call(f.sec.querySelectorAll('.steps--film .step'));
       if(mobile){tl.set(caps[0],{autoAlpha:1},0);gsap.set(caps[0],{autoAlpha:1});tl.set(st[1],{autoAlpha:0},0);capOut(tl,st[0],5.6);capIn(tl,st[1],6.2);}
-      else{capIn(tl,caps[0],.8);tl.fromTo(st[1],{autoAlpha:0,y:24},{autoAlpha:1,y:0,duration:.6,ease:'power3.out'},4.6);}
-      // resolve the exit: after the finished candle has held, the footage settles into the dark page (same clock, reversible),
-      // so the pin never releases on a cropped bright jar arc
-      tl.to(f.sec.querySelector('.film__stage'),{opacity:.18,duration:1.4,ease:'power1.inOut'},10.4);
-      tl.to(f.sec.querySelector('.film__label'),{opacity:0,duration:.6},10.9);
+      else{capIn(tl,caps[0],.8);tl.set(st[1],{autoAlpha:0},0);capIn(tl,st[1],4.6);}
+      // exit: after the finished candle has held, the frame wipes shut from the top with a hard edge (same clock, reversible)
+      tl.fromTo(f.sec.querySelector('.film__frame'),{clipPath:'inset(0% 0% 0% 0%)'},{clipPath:'inset(100% 0% 0% 0%)',duration:1.2,ease:'power3.inOut',immediateRender:false},10.4);
     }else{
       capIn(tl,caps[0],5.5);
     }
   });
 
-  // ---------- Section choreography (crisp: transform + opacity only, no blur) ----------
+  // ---------- Section choreography: hard-edged clip-path wipes and staggered type only (no fades, no blur) ----------
   function split(el){var tmp=document.createElement('div');tmp.innerHTML=el.innerHTML;
     function walk(node,out){[].forEach.call(node.childNodes,function(c){if(c.nodeType===3){c.textContent.split(/(\s+)/).forEach(function(p){if(!p)return;if(/^\s+$/.test(p)){out.appendChild(document.createTextNode(' '));return;}
         var w=document.createElement('span');w.className='w';var s=document.createElement('span');s.textContent=p;w.appendChild(s);out.appendChild(w);});}
@@ -195,26 +193,48 @@
   [].forEach.call(document.querySelectorAll('.lines'),function(el){if(el.id==='hero-h')return;var ws=split(el);
     gsap.from(ws,{yPercent:110,duration:.8,ease:'expo.out',stagger:.04,scrollTrigger:{trigger:el,start:'top 85%',once:true}});});
 
-  gsap.utils.toArray('.rv').forEach(function(el){gsap.from(el,{y:24,autoAlpha:0,duration:.7,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}});});
+  gsap.utils.toArray('.rv').forEach(function(el){gsap.fromTo(el,{clipPath:'inset(0% 0% 100% 0%)',y:18},{clipPath:'inset(0% 0% -10% 0%)',y:0,duration:.7,ease:'power4.out',clearProps:'clipPath',scrollTrigger:{trigger:el,start:'top 88%',once:true}});});
   // hero copy and CTA are never hidden: they paint with the first frame (fonts swap in on metric-matched fallbacks)
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){root.classList.add('fonts-in');});else root.classList.add('fonts-in');
   // steps slide in from alternating sides, then their rule sweeps across
   var steps=gsap.utils.toArray('.how .step');
   var stl=gsap.timeline({scrollTrigger:{trigger:'.how .steps',start:'top 80%',once:true}});
   steps.forEach(function(s,i){var l=s.dataset.from==='left';
-    stl.from(s,{x:l?-60:60,autoAlpha:0,duration:.8,ease:'expo.out'},i*.12)
+    stl.fromTo(s,{clipPath:l?'inset(0% 100% 0% 0%)':'inset(0% 0% 0% 100%)',x:l?-40:40},{clipPath:'inset(0% 0% 0% 0%)',x:0,duration:.8,ease:'power4.inOut'},i*.12)
        .fromTo(s,{'--s':0},{'--s':1,duration:.6,ease:'power2.inOut'},i*.12+.3)
-       .from(s.children,{y:14,autoAlpha:0,duration:.5,stagger:.07,ease:'power2.out'},i*.12+.25);});
+       .from(s.children,{yPercent:60,clipPath:'inset(0% 0% 100% 0%)',duration:.5,stagger:.07,ease:'power3.out',clearProps:'clipPath'},i*.12+.25);});
   // film step rules sweep in with the scrub (reversible, same clock)
   // menu rows sweep in from both sides
-  gsap.utils.toArray('.menu li').forEach(function(li,i){gsap.from(li,{x:li.dataset.from==='left'?-48:48,autoAlpha:0,duration:.8,ease:'expo.out',delay:i*.07,
+  gsap.utils.toArray('.menu li').forEach(function(li,i){gsap.fromTo(li,{clipPath:li.dataset.from==='left'?'inset(0% 100% 0% 0%)':'inset(0% 0% 0% 100%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:.8,ease:'power4.inOut',delay:i*.07,
     scrollTrigger:{trigger:li,start:'top 90%',once:true}});});
-  // photos: soft iris reveal + gentle parallax drift (scale 1.06 keeps the drift inside the frame)
+  // photos: hard-edged wipe up inside a crisp frame
   gsap.utils.toArray('.par').forEach(function(el){var img=el.querySelector('img');
-    gsap.fromTo(el,{clipPath:'inset(12% 12% 12% 12% round 6px)',autoAlpha:0},{clipPath:'inset(0% 0% 0% 0% round 6px)',autoAlpha:1,duration:1.1,ease:'expo.out',scrollTrigger:{trigger:el,start:'top 85%',once:true}});
-    gsap.fromTo(img,{yPercent:-(+el.dataset.speed||8)/3,scale:1.06},{yPercent:(+el.dataset.speed||8)/3,scale:1.06,ease:'none',scrollTrigger:{trigger:el,start:'top bottom',end:'bottom top',scrub:true}});});
+    gsap.fromTo(el,{clipPath:'inset(100% 0% 0% 0%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:1,ease:'power4.inOut',scrollTrigger:{trigger:el,start:'top 85%',once:true}});
+    // no zoomed parallax: the photo stays at its natural size (1.0x or less) inside its frame
+  });
   // hours rows stagger
-  gsap.from('.hours tr',{x:32,autoAlpha:0,duration:.6,stagger:.05,ease:'power3.out',scrollTrigger:{trigger:'.hours',start:'top 85%',once:true}});
+  gsap.fromTo('.hours tr',{clipPath:'inset(0% 0% 0% 100%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:.6,stagger:.05,ease:'power4.inOut',scrollTrigger:{trigger:'.hours',start:'top 85%',once:true}});
+  // ---------- the one-word scene: BLEND is cut out of solid amber; scrolling drives the camera through the E ----------
+  var wsec=document.getElementById('blend');
+  if(wsec){var svg=wsec.querySelector('.word'),wt=svg.querySelector('mask .word__t'),probe=svg.querySelector('.word__probe'),wcap=wsec.querySelector('.word__cap'),wlab=wsec.querySelector('.film__label');
+    var og='800 500';try{var e=probe.getExtentOfChar(2);og=(e.x+e.width/2).toFixed(1)+' '+(e.y+e.height*.5).toFixed(1);}catch(x){}
+    var wws=split(wcap.querySelector('.word__h'));
+    gsap.set([wcap,wlab],{clipPath:'inset(0% 100% 0% 0%)'});
+    gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:wsec,start:'top top',end:'bottom bottom',scrub:.35}})
+      .fromTo(wsec.querySelector('.reel__s'),{yPercent:0},{yPercent:-(420/1140*100),duration:1,ease:'none'},0)
+      .fromTo(wt,{scale:1,svgOrigin:og},{scale:60,svgOrigin:og,duration:.55,ease:'power2.in'},.05)
+      .set(svg,{visibility:'hidden'},.6)
+      .to(wcap,{clipPath:'inset(0% 0% 0% 0%)',duration:.12,ease:'power4.inOut'},.64)
+      .fromTo(wws,{yPercent:110},{yPercent:0,duration:.12,stagger:.02,ease:'power3.out',immediateRender:false},.68)
+      .to(wlab,{clipPath:'inset(0% 0% 0% 0%)',duration:.08},.66)
+      .to({},{duration:.2},.8);}
   addEventListener('load',function(){chrome();ScrollTrigger.refresh();});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){chrome();ScrollTrigger.refresh();});
+})();
+// ---------- real-photo reels: sized so the photo never shows above 1.0x (the move itself is scroll-scrubbed) ----------
+(function(){
+  var reels=[].slice.call(document.querySelectorAll('[data-reel]'));
+  function size(){var d=window.devicePixelRatio||1;reels.forEach(function(r){r.style.setProperty('--rw',(+r.dataset.w/d).toFixed(1)+'px');});}
+  size();addEventListener('resize',size);
+  window.__pcbReels=function(){return reels.map(function(r){var b=r.getBoundingClientRect(),im=r.querySelector('img');return {name:r.dataset.reel,cssW:b.width,file:+r.dataset.w,scale:b.width*(window.devicePixelRatio||1)/+r.dataset.w,src:im&&im.currentSrc,ty:im&&getComputedStyle(im).transform};});};
 })();
