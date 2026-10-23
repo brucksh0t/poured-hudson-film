@@ -10,7 +10,7 @@ Yes. Checked Oct 12, 2026:
 - Street address: the shop's own page https://www.pouredcandlebar.com/pages/pcb-experience, Wayback capture 20240122220731, reads "711 Warren Street Hudson, NY 12534". The current live site doesn't print the street address. The county tourism listing (columbiacountytourism.org) gives the same address and phone.
 
 ## Photos
-All five photos come from pouredcandlebar.com (the shop's own website) and were downloaded Oct 12, 2026. None are customer uploads. The page images in `img/` were resized locally to WebP and JPG, and none of them was upscaled. The film frames are covered separately in the motion table below: the generated clips were upscaled 2×, and the pour's opening tray shot and the hero's closing pan use their own photos without being shown above native size. The owners photo file is 344 px wide and is shown downscaled in a deliberate framed column (110 px at ≤480, 140 px wider), not at native size.
+All five photos come from pouredcandlebar.com (the shop's own website) and were downloaded Oct 12, 2026. None are customer uploads. The page images in `img/` were resized locally to WebP and JPG, and none of them was upscaled. The film frames are covered separately in the motion table below: nothing is upscaled; generated clips are native 720p, and the pour's opening tray shot, the hero's closing pan and the BLEND move are 1:1 windows of their own photos. The owners photo file is 344 px wide and is shown downscaled in a deliberate framed column (110 px at ≤480, 140 px wider), not at native size.
 
 | Local | Shows | Source URL |
 |---|---|---|
@@ -45,6 +45,8 @@ Two families: Cormorant Garamond (display, headings, ALL-CAPS buttons/labels) an
 
 ## Motion (scroll-scrubbed; native resolution, nothing upscaled)
 The scroll-scrubbed films are AI-generated 720p video made from the shop's own photos listed above, plus stretches built directly from those photos. None of it was filmed at the shop. Each film carries an on-screen label inside its frame: "Illustrative · AI-generated from the shop's photos" on generated frames and "Photo: Poured · …" on frames that are their photo. The label switches on the exact frame range, both ways.
+
+**Owner sign-off:** NOT YET OBTAINED. The AI-generated motion (hero 1–84, pour 6–70, wick 1–41) and the tray photo provenance must be approved by Dennis Green / Ricky Tiscareno before this is shown as their site.
 
 **Oct 23 rework.** Every 2× upscale is gone. Each frame is 1280×720, taken straight from the 720p clips or as a 1:1 window of a full-resolution photo. The film sits in a hard-edged 16:9 frame that is never wider than 1280 device pixels, so footage draws at 1.0× or less (phones show it full width under the header). Shot changes are a solid panel that wipes across the frame with a hard edge, scrubbed by scroll, instead of dips through dark. There are no dimmed frames, feathers, blurred fills, gradients or vignettes. Captions open with clip-path wipes and their words rise in sequence.
 

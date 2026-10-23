@@ -25,6 +25,9 @@
   chrome();addEventListener('resize',chrome);
   // One filled BOOK A POUR per screen: header/bar CTA shows only once the hero CTA has left the screen.
   function ctaOut(v){root.classList.toggle('cta-out',!!v);}
+  // Near the foot the #book BOOK A POUR stays filled; the header/bar copy turns to an outline while it is on screen.
+  var fb=document.querySelector('#book .btn--primary');
+  if(fb&&'IntersectionObserver' in window)new IntersectionObserver(function(es){root.classList.toggle('foot-cta',es[0].isIntersecting);}).observe(fb);
   var motion=/\bmotion\b/.test(root.className)&&window.gsap&&window.ScrollTrigger;
   if(!motion){
     root.classList.remove('motion');
@@ -219,14 +222,13 @@
   if(wsec){var svg=wsec.querySelector('.word'),wt=svg.querySelector('mask .word__t'),probe=svg.querySelector('.word__probe'),wcap=wsec.querySelector('.word__cap'),wlab=wsec.querySelector('.film__label');
     var og='800 500';try{var e=probe.getExtentOfChar(2);og=(e.x+e.width/2).toFixed(1)+' '+(e.y+e.height*.5).toFixed(1);}catch(x){}
     var wws=split(wcap.querySelector('.word__h'));
-    gsap.set([wcap,wlab],{clipPath:'inset(0% 100% 0% 0%)'});
+    gsap.set(wcap,{clipPath:'inset(0% 100% 0% 0%)'});
     gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:wsec,start:'top top',end:'bottom bottom',scrub:.35}})
       .fromTo(wsec.querySelector('.reel__s'),{yPercent:0},{yPercent:-(420/1140*100),duration:1,ease:'none'},0)
       .fromTo(wt,{scale:1,svgOrigin:og},{scale:60,svgOrigin:og,duration:.55,ease:'power2.in'},.05)
       .set(svg,{visibility:'hidden'},.6)
       .to(wcap,{clipPath:'inset(0% 0% 0% 0%)',duration:.12,ease:'power4.inOut'},.64)
       .fromTo(wws,{yPercent:110},{yPercent:0,duration:.12,stagger:.02,ease:'power3.out',immediateRender:false},.68)
-      .to(wlab,{clipPath:'inset(0% 0% 0% 0%)',duration:.08},.66)
       .to({},{duration:.2},.8);}
   addEventListener('load',function(){chrome();ScrollTrigger.refresh();});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){chrome();ScrollTrigger.refresh();});

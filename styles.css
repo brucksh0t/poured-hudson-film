@@ -224,6 +224,7 @@ html:not(.motion) .film .film__frame .film__canvas{display:none}
 .motion .film--impact .film__stage{padding-top:var(--navh,62px)}
 .motion .film__dip{display:block;position:absolute;inset:0;z-index:2;background:var(--bg);opacity:1;clip-path:inset(0 100% 0 0)}
 html .film .film__frame p.film__label{position:absolute;z-index:3;top:auto;left:auto;bottom:.6rem;right:.6rem;width:auto;max-width:calc(100% - 1.2rem);margin:0;padding:.25rem .55rem;border-radius:0;background:#0e0a07;color:#d8ccb8;box-shadow:none;text-align:left}
+.motion .film .film__frame p.film__label{top:.6rem;bottom:auto}
 /* copy panels: solid, hard-edged */
 .motion .cap--left,.motion .cap--scrim,.motion .cap--side{background:#0e0a07;border-radius:0}
 .cap--hero .cap__in::before{background:rgba(14,10,7,.88);border-radius:0;inset:-1.1rem -1.4rem}
@@ -285,3 +286,6 @@ html:not(.motion) .word{display:none}
 .frame{max-width:calc(var(--pw,1200px) / var(--dpr,1));margin-inline:auto}
 .reel__strip{position:absolute;inset:0;overflow:hidden}
 .reel__s{display:block;width:100%;height:auto;will-change:transform}
+
+/* one filled primary per screen near the foot: header / bar copy is an outline while the #book BOOK A POUR is in view */
+html.foot-cta .btn--hdr.btn--primary,html.foot-cta .mbar .btn--primary{background:rgba(20,15,11,.6);color:var(--amber-hi);border-color:var(--amber);box-shadow:none}
