@@ -37,7 +37,7 @@
   // One native tier: n = 1280x720, straight from the 720p clips and 1:1 windows of the shop's photos (nothing upscaled).
   // The canvas sits in a hard-edged 16:9 frame never wider than 1280 device pixels, so frames draw at 1.0x or less.
   // Light preview ladders (nq 640x360 every 3rd frame, nt 320x180 every 6th) land first on slow links.
-  var FV='12',STEP=3;
+  var FV='13',STEP=3;
   function cap(){return Math.min(window.devicePixelRatio||1,2);}
 
   // ---------- Film engine: canvas WebP sequences ----------
