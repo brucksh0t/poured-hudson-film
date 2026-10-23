@@ -168,6 +168,8 @@
     var len=isHero?480:f.name==='pour'?280:240;
     var tl=gsap.timeline({defaults:{ease:'none'},scrollTrigger:{trigger:f.sec,start:'top top',end:'+='+len+'%',pin:true,pinSpacer:f.sec.parentElement.classList.contains('pin-spacer')?f.sec.parentElement:undefined,scrub:.5,anticipatePin:1,invalidateOnRefresh:true,
       onUpdate:function(st){f.draw(o.f);if(isHero)ctaOut(heroGone(caps[0],st));}, onLeave:function(){if(isHero)ctaOut(true);}, onEnterBack:function(st){if(isHero)ctaOut(heroGone(caps[0],st));}}});
+    // re-check as the scrubbed timeline settles (a jump back to the top restores the hero CTA after the scroll stops)
+    if(isHero)tl.eventCallback('onUpdate',function(){if(tl.scrollTrigger&&tl.scrollTrigger.isActive)ctaOut(heroGone(caps[0],tl.scrollTrigger));});
     // hero: the first steps through the door are slower (8 frames over the first fifth of the pin), which also gives the
     // preview ladder a head start after the first scroll; the rest of the walk-in and the side pan run at an even pace
     if(isHero){tl.to(o,{f:8,duration:2,onUpdate:function(){f.draw(o.f);}},0);tl.to(o,{f:f.n-1,duration:8,onUpdate:function(){f.draw(o.f);}},2);}
