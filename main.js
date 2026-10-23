@@ -187,7 +187,7 @@
     function walk(node,out){[].forEach.call(node.childNodes,function(c){if(c.nodeType===3){c.textContent.split(/(\s+)/).forEach(function(p){if(!p)return;if(/^\s+$/.test(p)){out.appendChild(document.createTextNode(' '));return;}
         var w=document.createElement('span');w.className='w';var s=document.createElement('span');s.textContent=p;w.appendChild(s);out.appendChild(w);});}
       else{var cl=c.cloneNode(false);out.appendChild(cl);walk(c,cl);}});}
-    var frag=document.createElement('div');walk(tmp,frag);el.setAttribute('aria-label',el.textContent.replace(/\s+/g,' ').trim());el.innerHTML=frag.innerHTML;
+    var frag=document.createElement('div');walk(tmp,frag);var txt=el.textContent.replace(/\s+/g,' ').trim();el.innerHTML=frag.innerHTML;if(/^H[1-6]$/.test(el.tagName))el.setAttribute('aria-label',txt);else{var sr=document.createElement('span');sr.className='sr-only';sr.textContent=txt;el.appendChild(sr);}
     [].forEach.call(el.querySelectorAll('.w'),function(w){w.setAttribute('aria-hidden','true');});
     return el.querySelectorAll('.w>span');}
   [].forEach.call(document.querySelectorAll('.lines'),function(el){if(el.id==='hero-h')return;var ws=split(el);
