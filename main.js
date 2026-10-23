@@ -38,7 +38,7 @@
   // d = 1920x1080, x = 2560x1440 for large or high-DPR desktop screens. Picked from canvas CSS size x DPR.
   // Each tier has a light preview ladder (mq 360x480 / dq 480x270, every 3rd frame) that lands first on slow links;
   // the sharp frame replaces it as soon as it arrives.
-  var FV='8',TIERS=[{k:'d',h:1080},{k:'x',h:1440}],STEP=3;
+  var FV='9',TIERS=[{k:'d',h:1080},{k:'x',h:1440}],STEP=3;
   function cap(){return Math.min(window.devicePixelRatio||1,2);}
 
   // ---------- Film engine: canvas WebP sequences ----------
