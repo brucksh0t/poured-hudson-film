@@ -63,6 +63,9 @@
   Film.prototype.shot=function(f){var lo=0,hi=this.n-1,b=this.bounds;for(var q=0;q<b.length;q++){if(b[q]<=f)lo=b[q];if(b[q]>=f){hi=b[q];break;}}return [lo,hi];};
   Film.prototype.setDip=function(){if(!this.dip)return;var n=this.n,B=this.B,a=Math.floor(this.pf),t=this.pf-a,
       b=a+1<n?B[a]*(1-t)+B[a+1]*t:B[n-1],bd=this.drawn>=0?B[this.drawn]:1,o=this.hold?1:bd>0?Math.max(0,Math.min(1,1-b/bd)):0;
+    // floor: when the drawn frame changes shot faster than a dip can render (a flick on a slow phone), the stage still passes
+    // through dark: the overlay starts black and clears over 0.3 s
+    var since=Date.now()-(this.cutT||0);if(since<300){o=Math.max(o,1-since/300);var self=this;if(!this.cutRaf)this.cutRaf=requestAnimationFrame(function(){self.cutRaf=0;self.setDip();});}
     o=Math.round(o*100)/100;if(o!==this.dipA){this.dipA=o;this.dip.style.opacity=o;}};
   Film.prototype.reset=function(){this.gen++;var n=this.n;this.full=new Array(n);this.lq=new Array(n);this.ok=new Uint8Array(n);this.lok=new Uint8Array(n);
     this.req=new Uint8Array(n);this.lreq=new Uint8Array(n);this.tq=new Array(n);this.tok=new Uint8Array(n);this.treq=new Uint8Array(n);this.drawn=-1;this.drawnQ='';};
@@ -106,6 +109,7 @@
     var hold=at<0&&this.drawn>=0&&(this.drawn<lo||this.drawn>hi);if(hold!==this.hold){this.hold=hold;this.setDip();}
     if(at<0||(at===this.drawn&&q===this.drawnQ&&!force))return;
     var im=q==='full'?this.full[at]:q==='t'?this.tq[at]:this.lq[at];var c=this.cv,cw=c.width,ch=c.height,s=Math.max(cw/im.naturalWidth,ch/im.naturalHeight),w=im.naturalWidth*s,h=im.naturalHeight*s;
+    if(this.drawn>=0&&this.bounds.length){var s0=this.shot(this.drawn),s1=this.shot(at);if(s0[0]!==s1[0]&&Math.abs(at-this.drawn)>3&&this.B[this.drawn]>.4&&this.B[at]>.4)this.cutT=Date.now();}
     this.ctx.drawImage(im,(cw-w)/2,(ch-h)/2,w,h);this.drawn=at;this.drawnQ=q;this.setDip();
     if(!this.shown){this.shown=true;gsap.to(this.poster,{autoAlpha:0,duration:.4});}
     pump();};
