@@ -214,10 +214,17 @@ html:not(.motion) .film--pour .caps{margin-top:0}
 }
 /* mobile pour: footage a little taller, step 3 already on screen as the film arrives (no dead dark band) */
 @media (max-width:899px){
-  .motion .film--pour .film__canvas,.motion .film--pour .film__poster{height:calc(60svh - var(--navh,62px))}
-  .motion .film--pour .film__label{top:calc(60svh - 2.6rem)}
-  .motion .cap--side{top:calc(60svh + .2rem)}
+  .motion .film--pour .film__canvas,.motion .film--pour .film__poster{height:calc(72svh - var(--navh,62px))}
+  .motion .film--pour .film__label{top:calc(72svh - 2.6rem)}
+  .motion .cap--side{top:calc(72svh + .2rem)}
 }
 
 /* brighter phone hero: the kicker gets its own soft backing so it stays at 4.5:1 over the lit frames */
 @media (max-width:899px){.cap--hero .kicker{display:inline-block;background:rgba(20,15,11,.66);box-shadow:0 0 14px 6px rgba(20,15,11,.66);border-radius:4px}}
+
+/* dip overlay: scroll-driven darkness across each shot change (only in motion mode) */
+.film__dip{display:none}
+.motion .film__dip{display:block;position:absolute;inset:0;background:#0b0806;opacity:0;pointer-events:none}
+.film__label .lab-photo{display:none}
+.film__label.is-photo .lab-ai{display:none}
+.film__label.is-photo .lab-photo{display:inline}

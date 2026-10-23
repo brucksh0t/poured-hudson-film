@@ -14,7 +14,7 @@
 <link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-garamond-italic.woff2" crossorigin>
 <link rel="preload" as="image" type="image/webp" media="(max-width:899px)" imagesrcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" imagesizes="100vw" fetchpriority="high">
 <link rel="preload" as="image" type="image/webp" media="(min-width:900px)" imagesrcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" imagesizes="100vw" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=11">
+<link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
 <aside class="flag" aria-label="Notice"><p>Concept preview · not affiliated with Poured Candle Bar</p></aside>
@@ -27,19 +27,35 @@
 
 <main>
 <!-- HERO: scroll-scrubbed film (walk in → wall of scents) -->
-<div class="pin-spacer"><section class="film film--hero" id="today" data-film="hero" data-frames="111" aria-labelledby="hero-h">
+<div class="pin-spacer"><section class="film film--hero" id="today" data-film="hero" data-frames="100" data-photo-from="85" data-dips="34:.76,35:.53,36:.32,37:.48,38:.77" aria-labelledby="hero-h">
   <div class="film__stage">
     <picture><source type="image/webp" media="(max-width:899px)" srcset="img/hero-m-540.webp 540w, img/hero-m-720.webp 720w" sizes="100vw"><source type="image/webp" srcset="img/hero-1280.webp 1280w, img/hero-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/hero-1280.jpg" alt="The long shop interior: a bar with stools along one wall, shelves of fragrance bottles, a runner rug, and a leather sofa." width="1280" height="720" fetchpriority="high"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
+    <div class="film__dip" aria-hidden="true"></div>
     <div class="film__veil" aria-hidden="true"></div>
   </div>
-  <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
+  <p class="film__label"><span class="lab-ai">Illustrative · AI-generated from the shop’s photos</span><span class="lab-photo">Photo: Poured · a digital pan across their shop photo</span></p>
   <div class="caps">
     <div class="cap cap--hero"><div class="cap__in">
       <p class="kicker">Warren Street · Hudson, NY (address: call to confirm)</p>
       <h1 id="hero-h" class="lines">Blend your own scent. <em>Sip while it sets.</em></h1>
       <p class="lede">Make a one-of-a-kind candle, reed diffuser, or perfume from over 40 fragrances, sitting at a licensed wine bar.</p>
       <p class="today__row" data-status><span class="dot dot--neutral" aria-hidden="true"></span><span><b>Today</b> <span data-text>Posted hours: Sun 11–6 · Mon 12–6 · Thu 12–7 · Fri 12–8 · Sat 11–8 · Closed Tue–Wed (listed as summer hours). Call to confirm: <a href="tel:+15183033878">(518) 303-3878</a></span></span></p>
+      <script>/* today's posted hours set before first paint (same code as main.js), so the hero never reflows */(function(){
+  var H={0:[660,1080],1:[720,1080],4:[720,1140],5:[720,1200],6:[660,1200]};
+  var N=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var TEL=' Call to confirm: <a href="tel:+15183033878">(518) 303-3878</a>';
+  function t(m){var h=Math.floor(m/60),mm=m%60;return (h%12||12)+(mm?':'+(mm<10?'0':'')+mm:'')+(h>=12?' PM':' AM');}
+  function now(){var q=new URLSearchParams(location.search).get('now'),m=q&&q.match(/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)$/);
+    if(m)return {day:new Date(Date.UTC(+m[1],m[2]-1,+m[3])).getUTCDay(),min:+m[4]*60+ +m[5]};
+    var p={};new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(function(x){p[x.type]=x.value;});
+    return {day:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday),min:(+p.hour%24)*60+ +p.minute};}
+  function compute(n){var h=H[n.day];
+    if(h)return {c:'neutral',t:'Posted hours today ('+N[n.day].slice(0,3)+'): '+t(h[0])+'–'+t(h[1])+' (listed as summer hours).'};
+    return {c:'neutral',t:'Not on posted hours today ('+N[n.day].slice(0,3)+'; listed as summer hours).'};}
+  var n=now(),r=compute(n),row=document.querySelector('[data-status]');
+  if(row){row.querySelector('.dot').className='dot dot--'+r.c;row.querySelector('[data-text]').innerHTML=r.t+TEL;}
+})();</script>
       <div class="btns"><a class="btn btn--primary btn--lg" href="https://www.pouredcandlebar.com/products/pcb-experience" target="_blank" rel="noopener">BOOK A POUR</a><a class="btn btn--ghost btn--lg" href="tel:+15183033878">CALL</a></div>
     </div></div>
     <div class="cap cap--left cap--seats">
@@ -66,10 +82,11 @@
 </section>
 
 <!-- IMPACT: the pour -->
-<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="70" aria-labelledby="pour-h">
+<div class="pin-spacer"><section class="film film--impact film--pour" data-film="pour" data-frames="70" data-dips="2:.71,3:.43,4:.27,5:.24,6:.47,7:.56,8:.69,9:.8,10:.91" aria-labelledby="pour-h">
   <div class="film__stage">
     <picture><source type="image/webp" srcset="img/pour-end-1280.webp 1280w, img/pour-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/pour-end-1280.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
+    <div class="film__dip" aria-hidden="true"></div>
     <div class="film__veil" aria-hidden="true"></div>
   </div>
   <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
@@ -107,10 +124,11 @@
 </section>
 
 <!-- IMPACT: the wick -->
-<div class="pin-spacer"><section class="film film--impact film--wick" data-film="wick" data-frames="41" aria-label="Lighting the wick">
+<div class="pin-spacer"><section class="film film--impact film--wick" data-film="wick" data-frames="41" data-dips="17:.74,18:.46,19:.2,20:.37,21:.69,22:.91" aria-label="Lighting the wick">
   <div class="film__stage">
     <picture><source type="image/webp" srcset="img/wick-end-1280.webp 1280w, img/wick-end-1920.webp 1920w" sizes="100vw"><img class="film__poster" src="img/end-wick.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" fetchpriority="low"></picture>
     <canvas class="film__canvas" aria-hidden="true"></canvas>
+    <div class="film__dip" aria-hidden="true"></div>
     <div class="film__veil" aria-hidden="true"></div>
   </div>
   <p class="film__label">Illustrative · AI-generated from the shop’s photos</p>
@@ -170,6 +188,6 @@
 </div>
 <script src="js/gsap.min.js" defer></script>
 <script src="js/ScrollTrigger.min.js" defer></script>
-<script src="main.js?v=13" defer></script>
+<script src="main.js?v=15" defer></script>
 </body>
 </html>
